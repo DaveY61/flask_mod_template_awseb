@@ -21,14 +21,3 @@ __pycache__
 env
 venv
 
-# Ignore specific template files
-modules/
-project_icon.png
-account_icon.png
-home.html
-about.html
-eula.html
-gui_config.cnf
-mod_config.cnf
-role_config.cnf
-user_config.cnf
