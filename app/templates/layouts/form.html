@@ -1,0 +1,89 @@
+<!doctype html>
+<head>
+  <meta charset="utf-8">
+  <title>{% block title %}{% endblock %}</title>
+
+  <link rel="shortcut icon" href="{{ url_for('static', filename='img/project_icon.png') }}">
+
+  <meta name="description" content="{% block meta_description %}{{ config.DEFAULT_META_DESCRIPTION }}{% endblock %}">
+  <meta name="author" content="{{ config.COMPANY_NAME }}">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  
+  <!-- Preload critical resources -->
+  <link rel="preload" href="/static/css/bootstrap-5.3.3.min.css" as="style">
+  <link rel="preload" href="/static/js/libs/jquery-3.7.1.min.js" as="script">
+  
+  <!-- Critical inline CSS -->
+  <!-- Configurable CSS defined by gui_config.cnf -->
+  <style>
+      :root {
+          --body-color: {{ config.BODY_COLOR }};
+          --project-color: {{ config.PROJECT_NAME_COLOR }};
+      }
+  
+      body {
+          background-color: var(--body-color) !important;
+      }
+  
+      .brand-project-name {
+          color: var(--project-color) !important;
+      }
+  </style>
+  {% block additional_styles %}{% endblock %}
+  
+  <!-- External CSS -->
+  <link type="text/css" rel="stylesheet" href="/static/css/bootstrap-5.3.3.min.css">
+  <link type="text/css" rel="stylesheet" href="/static/css/fontawesome-6.6.0.min.css" />
+  <link type="text/css" rel="stylesheet" href="/static/css/layout.main.css" />
+
+</head>
+<body>
+  <!-- Flash Alert message -->
+  <div id="flash-messages" class="flash-messages">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="alert alert-{{ category if category != 'message' else 'info' }} alert-dismissible fade show custom-alert custom-alert-{{ category if category != 'message' else 'info' }}" role="alert">
+            {{ message|safe }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+          </div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+  </div>
+
+  <div class="d-flex justify-content-center">
+
+    <div>
+    <div style="margin:20px; text-align:center;">
+      <a href="/" style="text-decoration: none">
+        <img src="{{ url_for('static', filename='img/project_icon.png') }}" alt="Logo" height="50px" style="vertical-align:center; margin-right:10px;">
+        <div class="brand-project-name" style="font-size:3em; vertical-align:center">{{ config.PROJECT_NAME }}</div>
+      </a>
+    </div>
+
+    <div style="width:100%; display: flex; justify-content: center;">
+    <div class="card mt-3" style="width: 400px;">
+      <div class="card-body pt-2 pb-3 px-3">
+        {% block content %}{% endblock %}
+      </div>
+    </div>
+    </div>
+
+  </div>
+
+  <!-- Scripts -->
+  <script type="text/javascript" src="/static/js/libs/jquery-3.7.1.min.js"></script>
+  <script type="text/javascript" src="/static/js/libs/bootstrap.bundle-5.3.3.min.js" defer></script>
+  <script type="text/javascript" src="/static/js/libs/fontawesome-6.6.0.min.js" defer></script>
+  <script type="text/javascript" src="{{ url_for('static', filename='js/flash-messages.js') }}" defer></script>
+
+  {% if config.ENABLE_REGISTRATION_CAPTCHA %}
+  <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+  {% endif %}
+
+  {% block scripts %}{% endblock %}
+  <!-- Scripts -->
+
+</body>
+</html>

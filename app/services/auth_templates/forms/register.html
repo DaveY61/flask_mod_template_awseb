@@ -1,0 +1,33 @@
+{% extends 'forms/form_base.html' %}
+
+{% set purpose = "Register" %}
+
+{% block form_content %}
+  <div class="mb-3">
+    {{ form.username(class_='form-control', placeholder=form.username.label.text, required=true, autofocus=true) }}
+  </div>
+  <div class="mb-3">
+    {{ form.email(class_='form-control', placeholder=form.email.label.text, required=true) }}
+  </div>
+  <div class="mb-3">
+    {{ form.password(class_='form-control', placeholder=form.password.label.text, required=true) }}
+  </div>
+  <div class="d-flex justify-content-end mb-3">
+    <a href="{{ url_for('auth.login') }}">Already have an account? Login</a>
+  </div>
+
+  {% if config.ENABLE_REGISTRATION_CAPTCHA %}
+  <div class="mb-3 d-flex justify-content-center">
+    <div class="g-recaptcha" data-sitekey="{{ config.RECAPTCHA_SITE_KEY }}" data-callback="recaptchaCallback"></div>
+  </div>
+  {% endif %}
+
+  {% include 'components/eula_checkbox.html' %}
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+{% if config.ENABLE_REGISTRATION_CAPTCHA %}
+<script src="https://www.google.com/recaptcha/api.js" async defer></script>
+{% endif %}
+{% endblock %}

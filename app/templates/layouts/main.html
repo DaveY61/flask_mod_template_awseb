@@ -1,0 +1,189 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>{% block title %}{% endblock %}</title>
+
+<link rel="shortcut icon" href="{{ url_for('static', filename='img/project_icon.png') }}">
+
+<meta name="description" content="{% block meta_description %}{{ config.DEFAULT_META_DESCRIPTION }}{% endblock %}">
+<meta name="author" content="{{ config.COMPANY_NAME }}">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+
+<!-- Preload critical resources -->
+<link rel="preload" href="/static/css/bootstrap-5.3.3.min.css" as="style">
+<link rel="preload" href="/static/js/libs/jquery-3.7.1.min.js" as="script">
+
+<!-- Critical inline CSS -->
+<!-- Configurable CSS defined by gui_config.cnf -->
+<style>
+    :root {
+        --body-color: {{ config.BODY_COLOR }};
+        --project-color: {{ config.PROJECT_NAME_COLOR }};
+    }
+
+    body {
+        background-color: var(--body-color) !important;
+    }
+
+    .brand-project-name {
+        color: var(--project-color) !important;
+    }
+</style>
+{% block additional_styles %}{% endblock %}
+
+<!-- External CSS -->
+<link type="text/css" rel="stylesheet" href="/static/css/bootstrap-5.3.3.min.css">
+<link type="text/css" rel="stylesheet" href="/static/css/fontawesome-6.6.0.min.css" />
+<link type="text/css" rel="stylesheet" href="/static/css/layout.main.css" />
+
+</head>
+<body>
+  <!-- Flash Alert message -->
+  <div id="flash-messages" class="flash-messages">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="alert alert-{{ category if category != 'message' else 'info' }} alert-dismissible fade show custom-alert custom-alert-{{ category if category != 'message' else 'info' }}" role="alert">
+            {{ message|safe }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+          </div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+  </div>
+
+  <!-- Fixed navbar -->
+  <nav id="header" class="navbar navbar-expand-sm navbar-light bg-light">
+    <div class="container-fluid">
+      <!-- Project Title -->
+      <a class="navbar-brand d-flex align-items-center" href="{{ url_for('home') }}">
+        <img src="{{ url_for('static', filename='img/project_icon.png') }}" alt="Logo" height="30" class="me-2">
+        <span class="brand-project-name">{{ config.PROJECT_NAME }}</span>
+      </a>
+  
+      <!-- Toggler for mobile -->
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent" aria-controls="navbarContent" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+  
+      <!-- Collapsible content -->
+      <div class="collapse navbar-collapse" id="navbarContent">
+
+        <!-- Top-Level Menu -->
+        <ul class="navbar-nav mx-auto">
+          
+          <!-- 'Home' and 'About' options -->
+          <li class="nav-item">
+            <a class="nav-link {% if request.endpoint == 'home' %}active{% endif %}" href="{{ url_for('home') }}">Home</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link {% if request.endpoint == 'about' %}active{% endif %}" href="{{ url_for('about') }}">About</a>
+          </li>
+
+          <!-- Dynamic Menu -->
+          {% if current_user.is_authenticated %}
+            {% set allowed_modules = current_user.get_allowed_modules() %}
+            {% for module in config.MODULE_LIST %}
+              {% if module.enabled and module.name in allowed_modules %}
+                <li class="nav-item">
+                  <a class="nav-link {% if request.path.startswith('/' + module.blueprint + '/') %}active{% endif %}"
+                  href="{{ url_for('module_proxy', module_path=module.blueprint + module.primary_route) }}">
+                    {{ module.menu_name }}
+                  </a>
+                </li>
+              {% endif %}
+            {% endfor %}
+          {% endif %}
+        </ul>
+  
+        <!-- Account Dropdown -->
+        <ul class="navbar-nav ms-auto">
+          {% if not current_user.is_authenticated %}
+            {% if not config.DISABLE_SELF_REGISTRATION %}
+              <li class="nav-item">
+                <a class="nav-link" href="{{ url_for('auth.register') }}">Signup</a>
+              </li>
+            {% endif %}            
+            <li class="nav-item">
+              <a class="nav-link" href="{{ url_for('auth.login') }}">Login</a>
+            </li>
+          {% else %}
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                <img src="{{ url_for('static', filename='img/account_icon.png') }}" alt="Account" height="30">
+              </a>
+              <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
+                <li><a class="dropdown-item" href="{{ url_for('auth.logout') }}">Logout</a></li>
+                <li><a class="dropdown-item" href="{{ url_for('auth.forgot') }}">Reset Password</a></li>
+                <li><hr class="dropdown-divider"></li>
+                <li><a class="dropdown-item text-danger" href="{{ url_for('auth.delete') }}">Remove Account</a></li>
+                {% if is_admin %}
+                  <li><hr class="dropdown-divider"></li>
+                  <li><a class="dropdown-item text-warning" href="{{ url_for('admin.setup') }}">Admin Setup</a></li>
+                  <li><a class="dropdown-item text-info" href="{{ url_for('log.log_viewer') }}">Log Viewer</a></li>
+                {% endif %}
+              </ul>
+            </li>
+          {% endif %}
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Wrap page content here -->
+  <div id="wrap" class="d-flex flex-column">
+
+    <div class="flex-grow-1 d-flex">
+      <!-- Optional side-bar menu -->
+      {% if use_sidebar %}
+      <div class="sidebar">
+        <div class="sidebar-toggle-row">
+            <span class="sidebar-toggle-icon">&lt;&lt;</span>
+            <span class="sidebar-toggle-text">Collapse</span>
+        </div>
+        <ul class="sidebar-menu">
+            {% for item in sidebar_menu %}
+            <li>
+                <a href="#" 
+                  data-action="{{ item.action }}" 
+                  data-params="{{ item.params[0] }}">
+                    <i class="{{ item.icon }}"></i>
+                    <span>{{ item.text }}</span>
+                </a>
+            </li>
+            {% endfor %}
+        </ul>
+        <div class="sidebar-toggle-row">
+            <span class="sidebar-toggle-icon">&lt;&lt;</span>
+            <span class="sidebar-toggle-text">Collapse</span>
+        </div>
+      </div>
+      {% endif %}
+
+      <!-- Begin page content -->
+      <main id="content" role="main" class="flex-grow-1 {% if use_sidebar %}content-with-sidebar{% endif %}">
+        <div class="container-fluid py-3">
+            {% block content %}{% endblock %}
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <footer id="footer">
+    <div class="container">
+      {{ config.COMPANY_NAME }} &copy; All Rights Reserved.
+    </div>
+  </footer>
+
+  <!-- Scripts -->
+  <script type="text/javascript" src="/static/js/libs/jquery-3.7.1.min.js"></script>
+  <script type="text/javascript" src="/static/js/libs/bootstrap.bundle-5.3.3.min.js" defer></script>
+  <script type="text/javascript" src="/static/js/libs/fontawesome-6.6.0.min.js" defer></script>
+  <script type="text/javascript" src="/static/js/sidebar.js" defer></script>
+  <script type="text/javascript" src="{{ url_for('static', filename='js/flash-messages.js') }}" defer></script>
+  {% block scripts %}{% endblock %}
+  <!-- Scripts -->
+
+</body>
+</html>

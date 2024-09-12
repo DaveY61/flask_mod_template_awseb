@@ -1,0 +1,34 @@
+# Ignore application data and logs
+app_logs/
+app_data/
+app_test_results/
+
+# Ignore other support files
+project_tree.txt
+project_code.txt
+fmt_update_log.txt
+fmt_update_backups/
+
+# Ignore Python files
+*.pyo
+*.pyc
+__pycache__
+.pytest_cache
+.DS_Store
+
+# Ignore secrets and environment
+.env
+env
+venv
+
+# Ignore specific template files
+modules/
+project_icon.png
+account_icon.png
+home.html
+about.html
+eula.html
+gui_config.cnf
+mod_config.cnf
+role_config.cnf
+user_config.cnf

@@ -1,0 +1,170 @@
+{% extends 'layouts/main.html' %}
+{% block title %}Module Setup {{ config.PROJECT_NAME }}{% endblock %}
+{% block content %}
+
+<div class="page-header">
+  <h2>Module Setup</h2>
+</div>
+
+<form method="POST" id="admin-setup-form">
+  <div class="table-responsive">
+    <table class="table table-hover">
+      <thead class="table-light">
+        <tr>
+          <th style="width: 5%;"></th>
+          <th style="width: 5%;">Enabled</th>
+          <th style="width: 15%;">Module Name</th>
+          <th style="width: 15%;">Menu Name</th>
+          <th style="width: 20%;">Blueprint</th>
+          <th style="width: 20%;">Primary Route</th>
+          <th style="width: 20%;">Status</th>
+        </tr>
+      </thead>
+      <tbody id="module-list">
+        {% for module in modules %}
+          <tr class="module-item" data-module-name="{{ module.name }}">
+            <td class="p-1">
+              <span class="drag-handle">&#9776;</span>
+            </td>
+            <td class="p-1">
+              <div class="form-check">
+                <input class="form-check-input" type="checkbox" name="modules" value="{{ module.name }}" id="{{ module.name }}"
+                       {% if module.enabled %}checked{% endif %}
+                       {% if module.status and module.status[0][0] == 'error' %}disabled{% endif %}>
+              </div>
+            </td>
+            <td class="p-1">{{ module.name }}</td>
+            <td class="p-1">
+              <input type="text" class="form-control form-control-sm" name="menu_name_{{ module.name }}" 
+                     value="{{ module.menu_name }}" placeholder="Menu Name" maxlength="20" style="max-width: 140px;">
+            </td>
+            <td class="p-1">{{ module.blueprint }}</td>
+            <td class="p-1">{{ module.primary_route }}</td>
+            <td class="p-1">
+              {% if module.status %}
+                <ul class="list-unstyled mb-0">
+                  {% for status_type, status_message in module.status %}
+                    <li>
+                      {% if status_type == 'success' %}
+                        <i class="fas fa-check-circle text-success"></i>
+                      {% elif status_type == 'warning' %}
+                        <i class="fas fa-exclamation-triangle text-warning"></i>
+                      {% elif status_type == 'error' %}
+                        <i class="fas fa-times-circle text-danger"></i>
+                      {% else %}
+                        <i class="fas fa-info-circle text-info"></i>
+                      {% endif %}
+                      {{ status_message }}
+                    </li>
+                  {% endfor %}
+                </ul>
+              {% endif %}
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  <input type="hidden" id="module_order" name="module_order" value="">
+  
+  <button type="submit" class="btn btn-primary mt-3 btn-sm" id="saveButton">Update Config</button>
+</form>
+
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='libs/sortable/Sortable.min.js') }}"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    new Sortable(document.querySelector('#module-list'), {
+      animation: 150,
+      handle: '.drag-handle',
+      onEnd: function(evt) {
+        updateModuleOrder();
+      }
+    });
+
+    updateModuleOrder(); // Initialize module order when page loads
+
+    // Add this: Update module order before form submission
+    document.getElementById('admin-setup-form').addEventListener('submit', function(e) {
+      e.preventDefault();
+      updateModuleOrder();
+      
+      // Use AJAX to submit the form
+      fetch('{{ url_for("admin.setup_type", setup_type="modules") }}', {
+        method: 'POST',
+        body: new FormData(this),
+        headers: {
+          'X-Requested-With': 'XMLHttpRequest'
+        }
+      })
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        return response.json();
+      })
+      .then(data => {
+        if (data.status === 'success') {
+          // Set a session storage item to show a flash message after reload
+          sessionStorage.setItem('flashMessage', JSON.stringify({
+            message: 'Module configuration updated successfully!',
+            category: 'success'
+          }));
+          window.location.reload();
+        } else {
+          showFlashMessage('Error updating module configuration: ' + (data.message || 'Unknown error'), 'danger');
+        }
+      })
+      .catch(error => {
+        console.error('Error:', error);
+        showFlashMessage('An error occurred while updating the configuration: ' + error.message, 'danger');
+      });
+    });
+
+    // Check for flash message in session storage and display it
+    const storedFlashMessage = sessionStorage.getItem('flashMessage');
+    if (storedFlashMessage) {
+      const flashData = JSON.parse(storedFlashMessage);
+      showFlashMessage(flashData.message, flashData.category);
+      sessionStorage.removeItem('flashMessage');
+    }
+  });
+
+  function updateModuleOrder() {
+    const moduleOrder = Array.from(document.querySelectorAll('.module-item'))
+      .map(item => item.dataset.moduleName);
+    document.getElementById('module_order').value = JSON.stringify(moduleOrder);
+  }
+
+  function showAdminSetup(setupType) {
+    window.location.href = "{{ url_for('admin.setup_type', setup_type='') }}" + setupType;
+  }
+
+  function showFlashMessage(message, category) {
+    const flashMessagesContainer = document.getElementById('flash-messages');
+    const alertDiv = document.createElement('div');
+    alertDiv.className = `alert alert-${category} alert-dismissible fade show custom-alert custom-alert-${category}`;
+    alertDiv.setAttribute('role', 'alert');
+    alertDiv.innerHTML = `
+      ${message}
+      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    `;
+    flashMessagesContainer.appendChild(alertDiv);
+
+    // Auto-dismiss the alert after 5 seconds
+    setTimeout(() => {
+      alertDiv.remove();
+    }, 5000);
+  }
+</script>
+{% endblock %}
+
+{% block additional_styles %}
+<style>
+  .fa-exclamation-triangle, .fa-info-circle {
+    cursor: help;
+  }
+</style>
+{% endblock %}

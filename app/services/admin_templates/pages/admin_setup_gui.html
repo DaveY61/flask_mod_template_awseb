@@ -1,0 +1,165 @@
+{% extends 'layouts/main.html' %}
+{% block title %}GUI Setup {{ config.PROJECT_NAME }}{% endblock %}
+{% block content %}
+
+<div class="page-header">
+  <h2>GUI Setup</h2>
+</div>
+
+<form method="POST" id="admin-setup-form" class="col-md-8" enctype="multipart/form-data">
+  <div class="gui-setup-container">
+    <div class="gui-setup-row">
+      <label for="company_name" class="gui-label">Company Name:</label>
+      <div class="gui-input">
+        <input type="text" class="form-control form-control-sm" id="company_name" name="company_name" value="{{ form_data.company_name }}">
+      </div>
+    </div>
+    <div class="gui-setup-row">
+      <label for="company_address" class="gui-label">Company Address:</label>
+      <div class="gui-input">
+        <input type="text" class="form-control form-control-sm" id="company_address" name="company_address" value="{{ form_data.company_address }}">
+      </div>
+    </div>
+    <div class="gui-setup-row">
+      <label for="company_contact" class="gui-label">Company Contact:</label>
+      <div class="gui-input">
+        <input type="text" class="form-control form-control-sm" id="company_contact" name="company_contact" value="{{ form_data.company_contact }}">
+      </div>
+    </div>
+    <div class="gui-setup-row">
+      <label for="jurisdiction" class="gui-label">Jurisdiction:</label>
+      <div class="gui-input">
+        <input type="text" class="form-control form-control-sm" id="jurisdiction" name="jurisdiction" value="{{ form_data.jurisdiction }}">
+      </div>
+    </div>    
+    <div class="gui-setup-row">
+      <label for="body_color" class="gui-label">Body Color:</label>
+      <div class="gui-input">
+        <div class="d-flex">
+          <input type="color" id="body_color_picker" class="form-control form-control-color p-0 me-2" onchange="updateColorInput('body_color', this.value)">
+          <input type="text" class="form-control form-control-sm color-text-input" id="body_color" name="body_color" value="{{ form_data.body_color }}" placeholder="Color name or hex code">
+        </div>
+      </div>
+    </div>
+    <div class="gui-setup-row">
+      <label for="project_name" class="gui-label">Project Name:</label>
+      <div class="gui-input">
+        <input type="text" class="form-control form-control-sm" id="project_name" name="project_name" value="{{ form_data.project_name }}">
+      </div>
+    </div>
+    <div class="gui-setup-row">
+      <label for="project_name_color" class="gui-label">Project Name Color:</label>
+      <div class="gui-input">
+        <div class="d-flex">
+          <input type="color" id="project_name_color_picker" class="form-control form-control-color p-0 me-2" onchange="updateColorInput('project_name_color', this.value)">
+          <input type="text" class="form-control form-control-sm color-text-input" id="project_name_color" name="project_name_color" value="{{ form_data.project_name_color }}" placeholder="Color name or hex code">
+        </div>
+      </div>
+    </div>
+    <div class="gui-setup-row">
+      <label for="project_icon" class="gui-label">Project Icon:</label>
+      <div class="gui-input d-flex align-items-center">
+        <img src="{{ url_for('static', filename='img/project_icon.png') }}" alt="Current Project Icon" height="30" class="me-2">
+        <input type="file" class="form-control form-control-sm" id="project_icon" name="project_icon" accept="image/png">
+      </div>
+    </div>
+    <div class="gui-setup-row">
+      <label for="account_icon" class="gui-label">Account Icon:</label>
+      <div class="gui-input d-flex align-items-center">
+        <img src="{{ url_for('static', filename='img/account_icon.png') }}" alt="Current Account Icon" height="30" class="me-2">
+        <input type="file" class="form-control form-control-sm" id="account_icon" name="account_icon" accept="image/png">
+      </div>
+    </div>
+  </div>
+  
+  <button type="submit" class="btn btn-primary mt-3 btn-sm" id="saveButton">Update Config</button>
+</form>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+function updateColorInput(inputId, colorValue) {
+  document.getElementById(inputId).value = colorValue;
+}
+
+function initColorPickers() {
+  const bodyColor = document.getElementById('body_color');
+  const bodyColorPicker = document.getElementById('body_color_picker');
+  const projectNameColor = document.getElementById('project_name_color');
+  const projectNameColorPicker = document.getElementById('project_name_color_picker');
+
+  function updateColorPicker(input, picker) {
+    let color = input.value.trim();
+    if (color.startsWith('#')) {
+      picker.value = color;
+    } else {
+      // Convert color name to hex
+      const tempElem = document.createElement('div');
+      tempElem.style.color = color;
+      document.body.appendChild(tempElem);
+      const computedColor = getComputedStyle(tempElem).color;
+      document.body.removeChild(tempElem);
+      
+      const rgb = computedColor.match(/\d+/g);
+      if (rgb) {
+        const hex = '#' + rgb.map(x => parseInt(x).toString(16).padStart(2, '0')).join('');
+        picker.value = hex;
+      }
+    }
+  }
+
+  updateColorPicker(bodyColor, bodyColorPicker);
+  updateColorPicker(projectNameColor, projectNameColorPicker);
+
+  bodyColor.addEventListener('input', () => updateColorPicker(bodyColor, bodyColorPicker));
+  projectNameColor.addEventListener('input', () => updateColorPicker(projectNameColor, projectNameColorPicker));
+
+  bodyColorPicker.addEventListener('input', () => updateColorInput('body_color', bodyColorPicker.value));
+  projectNameColorPicker.addEventListener('input', () => updateColorInput('project_name_color', projectNameColorPicker.value));
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+  initColorPickers();
+});
+
+function showAdminSetup(setupType) {
+    window.location.href = "{{ url_for('admin.setup_type', setup_type='') }}" + setupType;
+}
+</script>
+{% endblock %}
+
+{% block additional_styles %}
+<style>
+  .gui-setup-container {
+    display: table;
+    width: 100%;
+  }
+  .gui-setup-row {
+    display: table-row;
+  }
+  .gui-label {
+    display: table-cell;
+    white-space: nowrap;
+    padding-right: 10px;
+    padding-bottom: 15px;
+    vertical-align: middle;
+  }
+  .gui-input {
+    display: table-cell;
+    width: 100%;
+    padding-bottom: 15px;
+  }
+  .gui-input input[type="text"],
+  .gui-input .d-flex {
+    width: 250px;
+  }
+  .gui-input input[type="color"] {
+    width: 38px;
+    height: 38px;
+  }
+  .gui-input .color-text-input {
+    width: calc(100% - 50px);  /* Subtracting color picker width and margin */
+  }
+</style>
+{% endblock %}

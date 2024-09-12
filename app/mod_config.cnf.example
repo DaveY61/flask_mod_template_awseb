@@ -1,0 +1,38 @@
+[
+  {
+    "name": "module_1",
+    "blueprint": "pie",
+    "primary_route": "/pie_chart",
+    "routes": {
+      "/pie_chart": "pie_chart"
+    },
+    "module_file": "pie_module",
+    "menu_name": "Pie Chart",
+    "enabled": true,
+    "order": 0
+  },
+  {
+    "name": "module_2",
+    "blueprint": "csv",
+    "primary_route": "/upload_csv",
+    "routes": {
+      "/upload_csv": "upload_csv"
+    },
+    "module_file": "csv_module",
+    "menu_name": "Upload CSV",
+    "enabled": true,
+    "order": 1
+  },
+  {
+    "name": "module_3",
+    "blueprint": "games",
+    "primary_route": "/games",
+    "routes": {
+      "/games": "games"
+    },
+    "module_file": "games_module",
+    "menu_name": "Games",
+    "enabled": true,
+    "order": 2
+  }
+]

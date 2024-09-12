@@ -1,0 +1,59 @@
+{% extends 'layouts/main.html' %}
+{% block title %}Games {{ config.PROJECT_NAME }}{% endblock %}
+
+{% block additional_styles %}
+<link type="text/css" rel="stylesheet" href="{{ url_for('static', filename='css/game_styles.css') }}" />
+{% endblock %}
+
+{% block content %}
+<div class="game-container">
+    <div class="game-area">
+        <div class="game-content">
+            <div id="tic-tac-toe" class="game-board"></div>
+            <div id="checkers-container" class="game-board">
+                <div id="checkers"></div>
+                <div id="game-instructions"></div>
+            </div>
+            <div id="pong" class="game-board"></div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/tic_tac_toe.js') }}"></script>
+<script src="{{ url_for('static', filename='js/checkers.js') }}"></script>
+<script src="{{ url_for('static', filename='js/pong.js') }}"></script>
+<script>
+function showGame(gameName) {
+    console.log("Showing game:", gameName);
+    document.querySelectorAll('.game-board').forEach(board => board.style.display = 'none');
+    
+    const gameBoard = document.getElementById(gameName === 'checkers' ? 'checkers-container' : gameName);
+    if (gameBoard) {
+        gameBoard.style.display = gameName === 'checkers' ? 'flex' : 'grid';
+        
+        // Clear and hide instructions for non-checkers games
+        const instructionsElement = document.getElementById('game-instructions');
+        instructionsElement.innerHTML = '';
+        instructionsElement.style.display = gameName === 'checkers' ? 'block' : 'none';
+
+        if (gameName === 'tic-tac-toe') {
+            window.initTicTacToe();
+        } else if (gameName === 'checkers') {
+            window.initCheckers();
+        } else if (gameName === 'pong') {
+            window.initPong();
+        }
+    } else {
+        console.error('Game board not found:', gameName);
+    }
+}
+
+// Show Tic-Tac-Toe by default when the page loads
+document.addEventListener('DOMContentLoaded', function() {
+    console.log("DOM fully loaded. Showing Tic-Tac-Toe.");
+    showGame('tic-tac-toe');
+});
+</script>
+{% endblock %}

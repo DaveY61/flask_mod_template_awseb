@@ -1,0 +1,386 @@
+{% extends 'layouts/main.html' %}
+{% block title %}Email Setup {{ config.PROJECT_NAME }}{% endblock %}
+{% block content %}
+
+<div class="page-header">
+  <h2>Email Setup</h2>
+</div>
+
+<form method="POST" id="email-setup-form" class="col-md-8" data-env-file-exists="{{ env_file_exists|tojson }}">
+  <div class="gui-setup-container">
+    <div class="gui-setup-row">
+      <label for="email_from_address" class="gui-label">From Email Address:</label>
+      <div class="gui-input">
+        <input type="email" class="form-control form-control-sm" id="email_from_address" name="email_from_address" value="{{ email_config['EMAIL_FROM_ADDRESS'] }}" required>
+      </div>
+    </div>
+    <div class="gui-setup-row">
+      <label for="smtp_server" class="gui-label">SMTP Server:</label>
+      <div class="gui-input">
+        <input type="text" class="form-control form-control-sm" id="smtp_server" name="smtp_server" value="{{ email_config['SMTP_SERVER'] }}" required>
+      </div>
+    </div>
+    <div class="gui-setup-row">
+      <label for="smtp_port" class="gui-label">SMTP Port:</label>
+      <div class="gui-input">
+        <input type="number" class="form-control form-control-sm" id="smtp_port" name="smtp_port" value="{{ email_config['SMTP_PORT'] }}" required>
+      </div>
+    </div>
+    <div class="gui-setup-row">
+      <label for="smtp_username" class="gui-label">SMTP Username:</label>
+      <div class="gui-input">
+        <input type="text" class="form-control form-control-sm" id="smtp_username" name="smtp_username" value="{{ email_config['SMTP_USERNAME'] }}" required>
+      </div>
+    </div>
+    <div class="gui-setup-row">
+      <label for="smtp_password" class="gui-label">SMTP Password:</label>
+      <div class="gui-input">
+        <div class="input-group">
+          <input type="password" class="form-control form-control-sm" id="smtp_password" name="smtp_password" value="{{ email_config['SMTP_PASSWORD'] }}" required>
+          <button class="btn btn-outline-secondary btn-sm toggle-password" type="button" data-target="smtp_password">
+            <i class="fas fa-eye"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+    <div class="gui-setup-row">
+      <label for="test_email" class="gui-label">Test Email Address:</label>
+      <div class="gui-input">
+        <input type="email" class="form-control form-control-sm" id="test_email" name="test_email" value="{{ test_email }}" required>
+      </div>
+    </div>
+  </div>
+  <div class="mt-3 d-flex align-items-center">
+    <button type="button" id="testEmailBtn" class="btn btn-success btn-sm me-2">Test Email</button>
+    <button type="button" id="updateSessionBtn" class="btn btn-primary btn-sm me-2" disabled>Update Session</button>
+    <div class="d-flex align-items-center">
+      <button type="button" id="saveSettingsBtn" class="btn btn-warning btn-sm me-1" disabled>Save Settings</button>
+      <i id="saveSettingsAlert" class="fas fa-exclamation-circle text-warning" style="cursor: pointer; display: none;"></i>
+    </div>
+  </div>
+  
+<!-- Modal for Save Settings Warning -->
+<div class="modal fade" id="saveSettingsModal" tabindex="-1" aria-labelledby="saveSettingsModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content save-settings-warning">
+      <div class="modal-header">
+        <h5 class="modal-title" id="saveSettingsModalLabel">
+          <i class="fas fa-exclamation-triangle me-2"></i>Save Settings Warning
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <p>The "Save Setting" operation is not supported (no .env file).</p>
+        <p>Be sure to update your server environment with any changes.</p>
+        <p><strong>Updates to the session will be lost if the server restarts.</strong></p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast-container position-fixed top-0 start-50 translate-middle-x p-3" style="z-index: 11">
+  <div id="emailToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+    <div class="toast-header">
+      <strong class="me-auto" id="emailToastTitle">Email Test</strong>
+      <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+    </div>
+    <div class="toast-body">
+      <span id="emailToastBody"></span>
+      <div class="mt-2 pt-2 border-top">
+        <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="toast">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+</form>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+function showAdminSetup(setupType) {
+    window.location.href = "{{ url_for('admin.setup_type', setup_type='') }}" + setupType;
+}
+
+function showToast(title, message, isError = false) {
+    const toast = document.getElementById('emailToast');
+    const toastTitle = document.getElementById('emailToastTitle');
+    const toastBody = document.getElementById('emailToastBody');
+    
+    toastTitle.textContent = title;
+    toastBody.textContent = message;
+    
+    if (isError) {
+        toast.classList.remove('bg-success');
+        toast.classList.add('bg-danger');
+    } else {
+        toast.classList.remove('bg-danger');
+        toast.classList.add('bg-success');
+    }
+    
+    const bsToast = new bootstrap.Toast(toast, {
+        autohide: false
+    });
+    bsToast.show();
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('email-setup-form');
+    const testEmailBtn = document.getElementById('testEmailBtn');
+    const updateSessionBtn = document.getElementById('updateSessionBtn');
+    const saveSettingsBtn = document.getElementById('saveSettingsBtn');
+    const saveSettingsAlert = document.getElementById('saveSettingsAlert');
+    const envFileExists = JSON.parse(form.dataset.envFileExists);
+
+    let sessionData = new FormData(form);
+    let envData = new FormData(form);
+    let isUpdatingSession = false;
+    let isTestingEmail = false;
+
+    function formDataChanged() {
+        const currentFormData = new FormData(form);
+        return ![...sessionData.entries()].every(([key, value]) => 
+            currentFormData.get(key) === value
+        );
+    }
+
+    function sessionChangedFromEnv() {
+        return ![...sessionData.entries()].every(([key, value]) => 
+            envData.get(key) === value
+        );
+    }
+
+    function updateButtonStates() {
+        const formChanged = formDataChanged();
+        updateSessionBtn.disabled = !formChanged;
+        if (envFileExists) {
+            saveSettingsBtn.disabled = !sessionChangedFromEnv();
+            saveSettingsBtn.classList.toggle('btn-outline-secondary', !sessionChangedFromEnv());
+            saveSettingsBtn.classList.toggle('btn-warning', sessionChangedFromEnv());
+            saveSettingsAlert.style.display = 'none';
+        } else {
+            saveSettingsBtn.disabled = true;
+            saveSettingsBtn.classList.remove('btn-warning');
+            saveSettingsBtn.classList.add('btn-outline-secondary');
+            saveSettingsAlert.style.display = 'inline-block';
+        }
+    }
+
+    form.addEventListener('input', updateButtonStates);
+
+    testEmailBtn.addEventListener('click', function(e) {
+        e.preventDefault();
+        isTestingEmail = true;
+        const formData = new FormData(form);
+        formData.append('action', 'test_email');
+        
+        fetch('{{ url_for("admin.setup_type", setup_type="email") }}', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'success') {
+                showToast('Success', data.message);
+            } else {
+                showToast('Error', data.message, true);
+            }
+            isTestingEmail = false;
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showToast('Error', 'An unexpected error occurred. Please check the console for details.', true);
+            isTestingEmail = false;
+        });
+    });
+    
+    updateSessionBtn.addEventListener('click', function(e) {
+        e.preventDefault();
+        isUpdatingSession = true;
+        const formData = new FormData(form);
+        formData.append('action', 'update_session');
+        
+        fetch('{{ url_for("admin.setup_type", setup_type="email") }}', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'success') {
+                sessionData = new FormData(form);  // Update sessionData with current form data
+                showToast('Success', data.message);
+                updateButtonStates();  // This will update button states
+            } else {
+                showToast('Error', data.message, true);
+            }
+            isUpdatingSession = false;
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showToast('Error', 'An unexpected error occurred. Please check the console for details.', true);
+            isUpdatingSession = false;
+        });
+    });
+
+    saveSettingsBtn.addEventListener('click', function(e) {
+        e.preventDefault();
+        const formData = new FormData(form);
+        formData.append('action', 'save_settings');
+        
+        fetch('{{ url_for("admin.setup_type", setup_type="email") }}', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'success') {
+                envData = new FormData(form);  // Update envData with current form data
+                showToast('Success', data.message);
+                updateButtonStates();  // This will update button states
+            } else {
+                showToast('Error', data.message, true);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showToast('Error', 'An unexpected error occurred. Please check the console for details.', true);
+        });
+    });
+
+    saveSettingsAlert.addEventListener('click', function() {
+        $('#saveSettingsModal').modal('show');
+    });
+
+    window.addEventListener('beforeunload', function (e) {
+        if ((formDataChanged() || (envFileExists && sessionChangedFromEnv())) && !isUpdatingSession && !isTestingEmail) {
+            e.preventDefault();
+            e.returnValue = '';
+        }
+    });
+
+    // Password visibility toggle
+    const togglePassword = document.querySelector('.toggle-password');
+    const password = document.querySelector('#smtp_password');
+
+    togglePassword.addEventListener('click', function (e) {
+        // toggle the type attribute
+        const type = password.getAttribute('type') === 'password' ? 'text' : 'password';
+        password.setAttribute('type', type);
+        // toggle the eye / eye slash icon
+        this.querySelector('i').classList.toggle('fa-eye');
+        this.querySelector('i').classList.toggle('fa-eye-slash');
+    });
+
+    updateButtonStates();
+});
+</script>
+{% endblock %}
+
+{% block additional_styles %}
+{{ super() }}
+<style>
+  .gui-setup-container {
+    display: table;
+    width: 100%;
+  }
+  .gui-setup-row {
+    display: table-row;
+  }
+  .gui-label {
+    display: table-cell;
+    white-space: nowrap;
+    padding-right: 10px;
+    padding-bottom: 15px;
+    vertical-align: middle;
+  }
+  .gui-input {
+    display: table-cell;
+    width: 100%;
+    padding-bottom: 15px;
+  }
+
+  .gui-input input[type="text"],
+  .gui-input input[type="email"],
+  .gui-input input[type="number"],
+  .gui-input input[type="password"],
+  .gui-input .input-group {
+    width: 250px; 
+  }
+
+  .gui-input .input-group {
+    display: flex;
+  }
+
+  .gui-input .input-group .form-control {
+    flex: 1;
+    width: auto;
+  }
+
+  .gui-input .input-group .toggle-password {
+    width: 38px;
+    flex-shrink: 0;
+  }
+
+  .save-settings-warning {
+    border: 2px solid red;
+  }
+
+  .save-settings-warning .modal-header {
+    background-color: #fff3cd;
+    color: red;
+    border-bottom: 1px solid #ffeeba;
+  }
+
+  .save-settings-warning .modal-body {
+    background-color: #fff3cd;
+    color: red;
+  }
+
+  .save-settings-warning .modal-title {
+    display: flex;
+    align-items: center;
+  }
+
+  .save-settings-warning .btn-close {
+    color: #856404;
+  }
+
+  #saveSettingsAlert {
+    font-size: 1.2em;
+    margin-left: 5px;
+    color: #ffc107;
+  }
+
+  #saveSettingsBtn:disabled {
+    opacity: 0.5;
+  }
+
+  .toast-container {
+    top: 80px !important; /* Adjust this value to position the toast below your navbar */
+  }
+
+  #emailToast {
+    min-width: 300px; /* Adjust as needed */
+    max-width: 90%; /* Prevents the toast from being too wide on small screens */
+  }
+
+  /* Custom styles for success and error toasts */
+  #emailToast.bg-success {
+    background-color: #d4edda !important;
+    color: #155724 !important;
+    border-color: #c3e6cb !important;
+  }
+
+  #emailToast.bg-danger {
+    background-color: #f8d7da !important;
+    color: #721c24 !important;
+    border-color: #f5c6cb !important;
+  }
+
+  #emailToast .toast-header {
+    background-color: rgba(255, 255, 255, 0.85);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+  }
+  </style>
+{% endblock %}

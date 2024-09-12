@@ -1,0 +1,19 @@
+{% extends 'layouts/main.html' %}
+{% block title %}Admin Setup {{ config.PROJECT_NAME }}{% endblock %}
+{% block content %}
+
+<div class="page-header">
+  <h2>Admin Setup</h2>
+</div>
+
+<p>Please select the Admin Setup area from the sidebar menu.</p>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+function showAdminSetup(setupType) {
+    window.location.href = "{{ url_for('admin.setup_type', setup_type='') }}" + setupType;
+}
+</script>
+{% endblock %}

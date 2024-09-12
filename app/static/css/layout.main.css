@@ -1,0 +1,369 @@
+/* Uset this "outline" to show borders for all elements
+* {
+  outline: 1px solid red;
+}
+-------------------------------------------------- */
+
+/* Sticky footer CSS
+-------------------------------------------------- */
+body {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+#wrap {
+  flex: 1;
+}
+
+#footer {
+  width: 100%;
+  height: 30px;
+  background-color: #f5f5f5;
+  margin-top: auto;
+}
+
+#footer .container {
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Custom page CSS
+-------------------------------------------------- */
+#wrap {
+  padding-top: 60px; /* Adjust this value based on your navbar height */
+}
+
+#content {
+  padding-top: 5px;
+  padding-bottom: 5px;
+  padding-right: 5px;
+  padding-left: 5px;
+}
+
+/* Navbar header CSS
+-------------------------------------------------- */
+.navbar-brand img {
+  height: 1.5em; /* Match the text height */
+  vertical-align: middle;
+  margin-right: 4px; /* Space between image and text */
+  margin-top: -3px;
+}
+
+/* Adjust the project name display */
+.brand-project-name {
+  display: inline-block;
+  vertical-align: middle;
+  margin-left: 5px;
+  font-size: 18px;
+  font-weight: bold;
+  white-space: nowrap;
+}
+
+/* Navbar styling */
+#header {
+    position: fixed;
+    width: 100%;
+    top: 0;
+    left: 0;
+    background-color: #f8f8f8;
+    border-bottom: 1px solid #ddd;
+    z-index: 1030; /* Ensure it stays on top */
+}
+
+/* Navbar header link CSS
+-------------------------------------------------- */
+.navbar-nav .nav-link {
+  position: relative;
+  transition: color 0.3s ease;
+}
+
+.navbar-nav .nav-link::after {
+  content: '';
+  position: absolute;
+  width: 100%;
+  height: 2px;
+  bottom: 0;
+  left: 0;
+  background-color: var(--project-color);
+  visibility: hidden;
+  transform: scaleX(0);
+  transition: all 0.3s ease-in-out;
+}
+
+.navbar-nav .nav-link:hover::after,
+.navbar-nav .nav-link.active::after {
+  visibility: visible;
+  transform: scaleX(1);
+}
+
+.navbar-nav .nav-link.active {
+  color: var(--project-color);
+  background-color: white;
+}
+
+/* Flask "flash" alert message pop-up CSS
+-------------------------------------------------- */
+.flash-messages {
+  position: fixed;
+  top: 50px; /* Adjust based on your navbar height */
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1050;
+  width: 80%;
+  max-width: 600px;
+}
+
+.flash-messages .alert {
+  margin-bottom: 10px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* Flask "flash" alert message display CSS
+-------------------------------------------------- */
+ .custom-alert {
+  border-width: 2px;
+  border-style: solid;
+  font-weight: bold;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.custom-alert-danger {
+  background-color: #FFEBEE;
+  border-color: #D32F2F;
+  color: #D32F2F;
+}
+
+.custom-alert-success {
+  background-color: #E8F5E9;
+  border-color: #2E7D32;
+  color: #2E7D32;
+}
+
+.custom-alert-warning {
+  background-color: #FFF9C4;
+  border-color: #F57C00;
+  color: #F57C00;
+}
+
+.custom-alert-info {
+  background-color: #E3F2FD;
+  border-color: #0D47A1;
+  color: #0D47A1;
+}
+
+.custom-alert-primary {
+  background-color: #E3F2FD;
+  border-color: #1976D2;
+  color: #1976D2;
+}
+
+.custom-alert-secondary {
+  background-color: #ECEFF1;
+  border-color: #607D8B;
+  color: #607D8B;
+}
+
+.custom-alert-light {
+  background-color: #FAFAFA;
+  border-color: #BDBDBD;
+  color: #757575;
+}
+
+.custom-alert-dark {
+  background-color: #EEEEEE;
+  border-color: #212121;
+  color: #212121;
+}
+
+.custom-alert .btn-close {
+  color: inherit;
+  opacity: 0.8;
+}
+
+.custom-alert .btn-close:hover {
+  opacity: 1;
+}
+
+/* Sidebar menu CSS
+-------------------------------------------------- */
+:root {
+  --sidebar-item-height: 40px; /* Base height for items */
+  --sidebar-item-padding: 1px; /* Padding top and bottom for items */
+}
+
+.sidebar {
+  position: fixed;
+  top: 60px; /* Adjust based on your navbar height */
+  left: 0;
+  height: calc(100vh - 60px);
+  width: 250px;
+  background-color: #f8f9fa;
+  transition: all 0.3s;
+  z-index: 1000;
+  overflow-x: auto;
+}
+
+.sidebar.collapsed {
+  width: 40px;
+}
+
+.sidebar-toggle-row {
+  height: calc(var(--sidebar-item-height) + 2 * var(--sidebar-item-padding));
+  padding: var(--sidebar-item-padding) 15px;
+  cursor: pointer;
+  transition: all 0.3s;
+  border-bottom: 1px solid #ddd;
+  display: flex;
+  align-items: center;
+}
+
+.sidebar-toggle-row:last-child {
+  border-top: 1px solid #ddd;
+  border-bottom: none;
+}
+
+.sidebar.collapsed .sidebar-toggle-row {
+  padding: var(--sidebar-item-padding) 0;
+  justify-content: center;
+}
+
+.sidebar-toggle-text {
+  transition: opacity 0.2s;
+}
+
+.sidebar.collapsed .sidebar-toggle-text {
+  opacity: 0;
+  width: 0;
+  height: 0;
+  overflow: hidden;
+}
+
+.sidebar-menu {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.sidebar-menu li {
+  height: calc(var(--sidebar-item-height) + 2 * var(--sidebar-item-padding));
+  padding: 0;
+}
+
+.sidebar-menu li a {
+  color: #333;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  padding: var(--sidebar-item-padding) 15px;
+  height: 100%;
+  transition: all 0.3s;
+}
+
+.sidebar-menu li a i {
+  width: 20px;
+  text-align: center;
+  margin-right: 10px;
+  transition: margin-right 0.3s;
+}
+
+.sidebar-menu li a span {
+  white-space: nowrap;
+  overflow: hidden;
+  opacity: 1;
+  transition: opacity 0.2s;
+}
+
+.sidebar.collapsed .sidebar-menu li a {
+  justify-content: flex-start;
+  padding: var(--sidebar-item-padding) 10px;
+}
+
+.sidebar.collapsed .sidebar-menu li a i {
+  margin-right: 0;
+}
+
+.sidebar.collapsed .sidebar-menu li a span {
+  opacity: 0;
+  width: 0;
+  height: 0;
+  overflow: hidden;
+}
+
+.content-with-sidebar {
+  margin-left: 250px;
+  transition: all 0.3s;
+}
+
+.content-with-sidebar.sidebar-collapsed {
+  margin-left: 40px;
+}
+
+@media (max-width: 768px) {
+  .sidebar {
+      width: 40px;
+  }
+
+  .content-with-sidebar {
+      margin-left: 40px;
+  }
+}
+
+/* Add hover effect for sidebar items and toggle rows */
+.sidebar-menu li a:hover,
+.sidebar-toggle-row:hover {
+  background-color: #e9ecef;
+}
+
+/* Ensure the hover effect covers the full width in collapsed state */
+.sidebar.collapsed .sidebar-menu li,
+.sidebar.collapsed .sidebar-toggle-row {
+  width: 100%;
+}
+
+.sidebar.collapsed .sidebar-menu li a {
+  width: 100%;
+}
+
+/* Update the hover effect for collapsed sidebar */
+.sidebar.collapsed .sidebar-menu li a:hover,
+.sidebar.collapsed .sidebar-toggle-row:hover {
+  background-color: #e9ecef;
+  width: 100%;
+}
+
+.sidebar-toggle-text {
+  transition: opacity 0.3s, width 0.3s;
+  opacity: 1;
+  width: auto;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.sidebar.collapsed .sidebar-toggle-text {
+  opacity: 0;
+  width: 0;
+}
+
+.sidebar-toggle-row {
+  transition: all 0.3s;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+}
+
+.sidebar-toggle-icon {
+  transition: all 0.3s;
+  margin-right: 5px;
+}
+
+.sidebar.collapsed .sidebar-toggle-icon {
+  transform: rotate(180deg);
+}
+
+.sidebar.collapsed .sidebar-toggle-row {
+  justify-content: center;
+}

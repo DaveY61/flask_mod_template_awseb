@@ -1,0 +1,248 @@
+{% extends 'layouts/main.html' %}
+{% block title %}Role Setup {{ config.PROJECT_NAME }}{% endblock %}
+{% block content %}
+
+<div class="page-header">
+  <h2>Role Setup</h2>
+</div>
+
+<div class="row">
+  <div class="col-md-12">
+    <div class="table-responsive">
+      <table class="table table-hover">
+        <thead class="table-light">
+          <tr>
+            <th style="width: 5%;">Default</th>
+            <th style="width: 15%;">Role Name</th>
+            <th style="width: 25%;">Description</th>
+            <th style="width: 35%;">Associated Modules</th>
+            <th style="width: 10%;">Users</th>
+            <th style="width: 10%;">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- Add New Role Row -->
+          <tr class="add-role-row">
+            <form method="POST" id="add-role-form">
+              <input type="hidden" name="action" value="add_role">
+              <td>
+                <input type="checkbox" class="form-check-input" id="new_role_default" name="new_role_default">
+              </td>
+              <td>
+                <input type="text" class="form-control form-control-sm" id="role_name" name="role_name" maxlength="15" required>
+              </td>
+              <td>
+                <input type="text" class="form-control form-control-sm" id="role_description" name="role_description" maxlength="40" required>
+              </td>
+              <td>
+                <div class="module-selection">
+                  <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="all_modules" name="all_modules">
+                    <label class="form-check-label" for="all_modules">All Modules</label>
+                  </div>
+                  {% for module in modules %}
+                    <div class="form-check form-check-inline">
+                      <input class="form-check-input module-checkbox" type="checkbox" name="modules" value="{{ module.name }}" id="module_new_{{ loop.index }}">
+                      <label class="form-check-label {% if module.enabled %}text-success{% else %}text-muted{% endif %}" for="module_new_{{ loop.index }}">
+                        {{ module.menu_name }}
+                      </label>
+                    </div>
+                  {% endfor %}
+                </div>
+              </td>
+              <td></td>
+              <td>
+                <button type="submit" class="btn btn-success btn-sm">Add</button>
+              </td>
+            </form>
+          </tr>
+          
+          <!-- Separator Row -->
+          <tr class="separator-row">
+            <td colspan="6"></td>
+          </tr>
+
+          <!-- Existing Roles -->
+          {% for role in roles %}
+            <tr>
+              <td>
+                <input type="checkbox" class="form-check-input default-role-checkbox" id="default_role_{{ role.name }}" 
+                       {% if role.name == default_role %}checked{% endif %}
+                       onchange="updateDefaultRole('{{ role.name }}', this.checked)">
+              </td>
+              <td>
+                {{ role.name }}
+              </td>
+              <td>
+                <input type="text" class="form-control form-control-sm" id="role_description_{{ role.name }}" name="role_description" value="{{ role.description }}" maxlength="40" required>
+              </td>
+              <td>
+                <div class="module-selection">
+                  {% for module in modules %}
+                    <div class="form-check form-check-inline">
+                      <input class="form-check-input" type="checkbox" name="modules_{{ role.name }}" value="{{ module.name }}" id="module_{{ role.name }}_{{ loop.index }}"
+                             {% if module.name in role.modules %}checked{% endif %}>
+                      <label class="form-check-label {% if module.enabled %}text-success{% else %}text-muted{% endif %}" for="module_{{ role.name }}_{{ loop.index }}">
+                        {{ module.menu_name }}
+                      </label>
+                    </div>
+                  {% endfor %}
+                </div>
+              </td>
+              <td>
+                {{ role.users_count }}
+              </td>
+              <td>
+                <button type="button" class="btn btn-primary btn-sm me-1" onclick="updateRole('{{ role.name }}')">Update</button>
+                <form method="POST" style="display: inline;">
+                  <input type="hidden" name="action" value="delete_role">
+                  <input type="hidden" name="role_name" value="{{ role.name }}">
+                  <button type="submit" class="btn btn-danger btn-sm" {% if role.users_count > 0 %}disabled{% endif %}>
+                    Delete
+                  </button>
+                </form>
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const allModulesCheckbox = document.getElementById('all_modules');
+    const moduleCheckboxes = document.querySelectorAll('.module-checkbox');
+
+    allModulesCheckbox.addEventListener('change', function() {
+        moduleCheckboxes.forEach(checkbox => {
+            checkbox.checked = allModulesCheckbox.checked;
+        });
+    });
+
+    // Initialize tooltips
+    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+    var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+      return new bootstrap.Tooltip(tooltipTriggerEl)
+    })
+});
+
+function updateRole(roleName) {
+    const description = document.getElementById(`role_description_${roleName}`).value;
+    const modules = Array.from(document.querySelectorAll(`input[name="modules_${roleName}"]:checked`)).map(cb => cb.value);
+    const isDefault = document.getElementById(`default_role_${roleName}`).checked;
+    
+    const form = document.createElement('form');
+    form.method = 'POST';
+    form.style.display = 'none';
+
+    const actionInput = document.createElement('input');
+    actionInput.type = 'hidden';
+    actionInput.name = 'action';
+    actionInput.value = 'update_role';
+    form.appendChild(actionInput);
+
+    const roleNameInput = document.createElement('input');
+    roleNameInput.type = 'hidden';
+    roleNameInput.name = 'role_name';
+    roleNameInput.value = roleName;
+    form.appendChild(roleNameInput);
+
+    const descriptionInput = document.createElement('input');
+    descriptionInput.type = 'hidden';
+    descriptionInput.name = 'role_description';
+    descriptionInput.value = description;
+    form.appendChild(descriptionInput);
+
+    const defaultRoleInput = document.createElement('input');
+    defaultRoleInput.type = 'hidden';
+    defaultRoleInput.name = 'is_default';
+    defaultRoleInput.value = isDefault;
+    form.appendChild(defaultRoleInput);
+
+    modules.forEach(module => {
+        const moduleInput = document.createElement('input');
+        moduleInput.type = 'hidden';
+        moduleInput.name = 'modules';
+        moduleInput.value = module;
+        form.appendChild(moduleInput);
+    });
+
+    document.body.appendChild(form);
+    form.submit();
+}
+
+function updateDefaultRole(roleName, isChecked) {
+    const checkboxes = document.querySelectorAll('.default-role-checkbox');
+    checkboxes.forEach(cb => {
+        if (cb.id !== `default_role_${roleName}`) {
+            cb.checked = false;
+        }
+    });
+}
+
+function showAdminSetup(setupType) {
+    window.location.href = "{{ url_for('admin.setup_type', setup_type='') }}" + setupType;
+}
+</script>
+{% endblock %}
+
+{% block additional_styles %}
+{{ super() }}
+<style>
+    .fa-exclamation-circle {
+        font-size: 1.2em;
+        cursor: help;
+    }
+    .tooltip-inner {
+        background-color: #f8f9fa;
+        color: #212529;
+        border: 1px solid #dee2e6;
+    }
+    .default-role-indicator {
+        margin-left: 5px;
+        cursor: help;
+    }
+    .table {
+        background-color: transparent;
+    }
+    .table > thead {
+        background-color: #f8f9fa;
+    }
+    .table > tbody > tr {
+        background-color: #ffffff;
+    }
+    .table-hover > tbody > tr:hover {
+        background-color: #f8f9fa;
+    }
+    .add-role-row {
+        background-color: #f8f9fa !important;
+    }
+    .add-role-row:hover {
+        background-color: #f8f9fa !important;
+    }
+    .separator-row {
+        height: 10px;
+    }
+    .separator-row td {
+        border-top: 1px solid #dee2e6;
+        border-bottom: 1px solid #dee2e6;
+        background-color: var(--body-color) !important;
+    }
+    .separator-row:hover {
+        background-color: var(--body-color) !important;
+    }
+    .module-selection {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+    .form-check-inline {
+        margin-right: 0;
+    }
+</style>
+{% endblock %}
