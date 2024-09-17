@@ -27,11 +27,74 @@ This guide provides step-by-step instructions for deploying the Flask Modular Te
    pip install awsebcli
    ```
 
-3. Configure the AWS CLI with your credentials:
+3. Set up IAM User and Policy:
+   a. Log in to the AWS Management Console and navigate to the IAM service.
+   b. Create a new IAM user named "ElasticBeanstalkUser_forCLI":
+      - Go to "Users" and click "Add user"
+      - Set the user name to "ElasticBeanstalkUser_forCLI"
+      - Select "Programmatic access" for the AWS access type
+   c. Create a new policy named "ElasticBeanstalkUserCLI":
+      - Go to "Policies" and click "Create policy"
+      - Switch to the JSON tab and paste the following policy:
+
+   <details>
+   <summary>Click to view/copy ElasticBeanstalkUserCLI Policy JSON</summary>
+
+   ```json
+   {
+       "Version": "2012-10-17",
+       "Statement": [
+           {
+               "Sid": "ElasticBeanstalkPermissions",
+               "Effect": "Allow",
+               "Action": [
+                   "elasticbeanstalk:*",
+                   "ec2:*",
+                   "ecs:*",
+                   "ecr:*",
+                   "elasticloadbalancing:*",
+                   "autoscaling:*",
+                   "cloudwatch:*",
+                   "s3:*",
+                   "sns:*",
+                   "cloudformation:*",
+                   "rds:*",
+                   "sqs:*",
+                   "logs:*"
+               ],
+               "Resource": "*"
+           },
+           {
+               "Sid": "IAMPassRolePermission",
+               "Effect": "Allow",
+               "Action": "iam:PassRole",
+               "Resource": "arn:aws:iam::*:role/aws-elasticbeanstalk-*"
+           }
+       ]
+   }
+   ```
+
+   </details>
+
+   d. Attach the "ElasticBeanstalkUserCLI" policy to the "ElasticBeanstalkUser_forCLI" user:
+      - Go back to the user's details page
+      - Under "Permissions", click "Add permissions"
+      - Choose "Attach existing policies directly"
+      - Search for and select the "ElasticBeanstalkUserCLI" policy
+      - Click "Next: Review" and then "Add permissions"
+
+   e. Retrieve the AWS access keys:
+      - On the user's details page, go to the "Security credentials" tab
+      - Under "Access keys", click "Create access key"
+      - Download or copy the "AWS Access Key ID" and "Secret Access Key"
+
+4. Configure the AWS CLI with your credentials:
    ```
    aws configure
    ```
-   Enter your AWS Access Key ID, Secret Access Key, default region, and output format when prompted.
+   Enter your AWS Access Key ID, Secret Access Key, default region, and output format when prompted. Use the access keys you obtained in step 3e.
+
+By following these steps, you'll have set up the necessary IAM user with the appropriate permissions for using the Elastic Beanstalk CLI. The provided policy grants the required permissions for managing Elastic Beanstalk environments and related AWS services.
 
 ## 3. Configuring AWS Elastic Beanstalk
 
