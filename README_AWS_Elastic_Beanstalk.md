@@ -124,15 +124,163 @@ By following these steps, you'll have set up the necessary IAM user with the app
 
 ## 3. Configuring AWS Elastic Beanstalk
 
-1. In the AWS Management Console, go to the Elastic Beanstalk service.
-2. Click "Create a new environment".
-3. Choose "Web server environment".
-4. Fill in the application details:
+1. In the AWS Management Console, go to the IAM service.
+
+2. Create two policies:
+
+   a. Create an EC2 policy named "ElasticBeanstalkEC2RolePolicy":
+      - Go to "Policies" and click "Create policy"
+      - Switch to the JSON tab and paste the following policy:
+
+   <details>
+   <summary><strong>📋 Click to view/copy ElasticBeanstalkEC2RolePolicy JSON</strong></summary>
+
+   ```json
+   {
+       "Version": "2012-10-17",
+       "Statement": [
+           {
+               "Sid": "BucketAccess",
+               "Action": [
+                   "s3:Get*",
+                   "s3:List*",
+                   "s3:PutObject"
+               ],
+               "Effect": "Allow",
+               "Resource": [
+                   "arn:aws:s3:::elasticbeanstalk-*",
+                   "arn:aws:s3:::elasticbeanstalk-*/*"
+               ]
+           },
+           {
+               "Sid": "XRayAccess",
+               "Action": [
+                   "xray:PutTraceSegments",
+                   "xray:PutTelemetryRecords",
+                   "xray:GetSamplingRules",
+                   "xray:GetSamplingTargets",
+                   "xray:GetSamplingStatisticSummaries"
+               ],
+               "Effect": "Allow",
+               "Resource": "*"
+           },
+           {
+               "Sid": "CloudWatchLogsAccess",
+               "Action": [
+                   "logs:PutLogEvents",
+                   "logs:CreateLogStream",
+                   "logs:DescribeLogStreams",
+                   "logs:DescribeLogGroups"
+               ],
+               "Effect": "Allow",
+               "Resource": [
+                   "arn:aws:logs:*:*:log-group:/aws/elasticbeanstalk*"
+               ]
+           },
+           {
+               "Sid": "ECSAccess",
+               "Effect": "Allow",
+               "Action": [
+                   "ecs:Poll",
+                   "ecs:StartTask",
+                   "ecs:StopTask",
+                   "ecs:DiscoverPollEndpoint",
+                   "ecs:StartTelemetrySession",
+                   "ecs:RegisterContainerInstance",
+                   "ecs:DeregisterContainerInstance",
+                   "ecs:DescribeContainerInstances",
+                   "ecs:Submit*"
+               ],
+               "Resource": "*"
+           }
+       ]
+   }
+   ```
+
+   </details>
+
+   b. Create a Service policy named "ElasticBeanstalkServiceRolePolicy":
+      - Go to "Policies" and click "Create policy"
+      - Switch to the JSON tab and paste the following policy:
+
+   <details>
+   <summary><strong>📋 Click to view/copy ElasticBeanstalkServiceRolePolicy JSON</strong></summary>
+
+   ```json
+   {
+       "Version": "2012-10-17",
+       "Statement": [
+           {
+               "Sid": "AllowPassRole",
+               "Effect": "Allow",
+               "Action": "iam:PassRole",
+               "Resource": "arn:aws:iam::*:role/aws-elasticbeanstalk-*"
+           },
+           {
+               "Sid": "AllowElasticBeanstalkOperations",
+               "Effect": "Allow",
+               "Action": [
+                   "elasticbeanstalk:*",
+                   "ec2:*",
+                   "ecs:*",
+                   "ecr:*",
+                   "elasticloadbalancing:*",
+                   "autoscaling:*",
+                   "cloudwatch:*",
+                   "s3:*",
+                   "sns:*",
+                   "cloudformation:*",
+                   "rds:*",
+                   "sqs:*",
+                   "logs:*"
+               ],
+               "Resource": "*"
+           }
+       ]
+   }
+   ```
+
+   </details>
+
+3. Create two roles:
+
+   a. Create an EC2 Role named "aws-elasticbeanstalk-ec2-role":
+      - Go to "Roles" and click "Create role"
+      - Choose AWS service and EC2 as the use case
+      - Attach the "ElasticBeanstalkEC2RolePolicy" you created earlier
+
+   b. Create a Service Role named "aws-elasticbeanstalk-service-role":
+      - Go to "Roles" and click "Create role"
+      - Choose AWS service and Elastic Beanstalk as the use case
+      - Attach the "ElasticBeanstalkServiceRolePolicy" you created earlier
+
+4. In the AWS Management Console, go to the Elastic Beanstalk service.
+
+5. Click "Create environment".
+
+6. Fill in the application details:
    - Application name: `flask-mod-template`
-   - Environment name: `flask-mod-template-env`
-5. For Platform, choose "Python" and select the appropriate Python version.
-6. For Application code, choose "Sample application" for now.
-7. Click "Create environment".
+   - Environment name: `Flask-mod-template-env` (automatically filled)
+
+7. For Platform, choose "Python" and select the appropriate Python version.
+
+8. For Application code, choose "Sample application" for now.
+
+9. Click 'Next'.
+
+10. On the 'Configure service access' form:
+    - Ensure "Use an existing service role" is selected
+    - Select the "aws-elasticbeanstalk-service-role" you created earlier
+    - For EC2 key pair, select the user you created earlier
+    - For EC2 instance profile, select the "aws-elasticbeanstalk-ec2-role" you created earlier
+
+11. Click 'Next'.
+
+12. On the next page, click 'Skip to review'.
+
+13. On the review page, review all the settings and click 'Submit' to create the application and the environment for the "flask-mod-application".
+
+These steps will set up the necessary policies and roles, and guide you through the process of creating an Elastic Beanstalk environment with the appropriate permissions and configurations.
 
 ## 4. Preparing Your Application
 
