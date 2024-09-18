@@ -123,9 +123,13 @@ This guide provides step-by-step instructions for deploying the Flask Modular Te
       - Click 'Create user'
 
    d. Retrieve the AWS access keys:
-      - On the user's details page, go to the "Security credentials" tab
-      - Under "Access keys", click "Create access key"
-      - Download or copy the "AWS Access Key ID" and "Secret Access Key"
+      - Go to the "Users" page and click to open the user page
+      - At the top in the "Summary" section, click "Create access key"
+      - For Use case, select "Command Line Interface (CLI)"
+      - Check the confirmation checkbox (bottom of form)
+      - Click 'Next'
+      - Click 'Create access key'
+      - Download or copy the "Access key" and "Secret access Key"
 
 4. Configure the AWS CLI with your credentials:
    ```
