@@ -33,10 +33,7 @@ This guide provides step-by-step instructions for deploying the Flask Modular Te
 
    b. Create a new policy named "ElasticBeanstalkUserCLI":
       - Go to "Policies" and click "Create policy"
-      - Switch to the JSON tab and paste the policy (below)
-      - Click 'Next'
-      - Fill in 'Policy name' as "ElasticBeanstalkUserCLI"
-      - Click 'Create policy'
+      - Switch to the JSON tab and paste the following policy:
 
    <details>
    <summary><strong>📋 Click to view/copy ElasticBeanstalkUserCLI Policy JSON</strong></summary>
@@ -110,6 +107,10 @@ This guide provides step-by-step instructions for deploying the Flask Modular Te
    }
    ```
    </details>
+
+      - Click 'Next'
+      - Fill in 'Policy name' as "ElasticBeanstalkUserCLI"
+      - Click 'Create policy'
 
    c. Create a new IAM user named "ElasticBeanstalkUser_forCLI":
       - Go to "Users" page and click "Create user"
