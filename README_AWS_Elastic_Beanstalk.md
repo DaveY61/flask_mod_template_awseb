@@ -123,7 +123,7 @@ This guide provides step-by-step instructions for deploying the Flask Modular Te
       - Click 'Create user'
 
    d. Retrieve the AWS access keys:
-      - Go to the "Users" page and click to open the user page
+      - Go to the "Users" page and click to open the "ElasticBeanstalkUser_forCLI" user page
       - At the top in the "Summary" section, click "Create access key"
       - For Use case, select "Command Line Interface (CLI)"
       - Check the confirmation checkbox (bottom of form)
@@ -135,7 +135,7 @@ This guide provides step-by-step instructions for deploying the Flask Modular Te
    ```
    aws configure
    ```
-   Enter your AWS Access Key ID, Secret Access Key, default region, and output format when prompted. Use the access keys you obtained in step 3e.
+   Enter your AWS Access Key ID, Secret Access Key, default region, and output format when prompted. Use the access keys you obtained in step 3d.
 
 By following these steps, you'll have set up the necessary IAM user with the appropriate permissions for using the Elastic Beanstalk CLI. The provided policy grants the required permissions for managing Elastic Beanstalk environments and related AWS services.
 
@@ -200,8 +200,11 @@ By following these steps, you'll have set up the necessary IAM user with the app
       ]
    }
    ```
-
    </details>
+
+      - Click 'Next'
+      - Fill in 'Policy name' as "ElasticBeanstalkEC2RolePolicy"
+      - Click 'Create policy'
 
    b. Create a Service policy named "ElasticBeanstalkServiceRolePolicy":
       - Go to "Policies" and click "Create policy"
@@ -277,8 +280,11 @@ By following these steps, you'll have set up the necessary IAM user with the app
       ]
    }
    ```
-
    </details>
+
+      - Click 'Next'
+      - Fill in 'Policy name' as "ElasticBeanstalkServiceRolePolicy"
+      - Click 'Create policy'
 
 3. Create two roles:
 
