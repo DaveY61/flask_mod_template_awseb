@@ -28,14 +28,15 @@ This guide provides step-by-step instructions for deploying the Flask Modular Te
    ```
 
 3. Set up IAM User and Policy:
+
    a. Log in to the AWS Management Console and navigate to the IAM service.
-   b. Create a new IAM user named "ElasticBeanstalkUser_forCLI":
-      - Go to "Users" and click "Add user"
-      - Set the user name to "ElasticBeanstalkUser_forCLI"
-      - Select "Programmatic access" for the AWS access type
-   c. Create a new policy named "ElasticBeanstalkUserCLI":
+
+   b. Create a new policy named "ElasticBeanstalkUserCLI":
       - Go to "Policies" and click "Create policy"
-      - Switch to the JSON tab and paste the following policy:
+      - Switch to the JSON tab and paste the policy (below)
+      - Click 'Next'
+      - Fill in 'Policy name' as "ElasticBeanstalkUserCLI"
+      - Click 'Create policy'
 
    <details>
    <summary><strong>📋 Click to view/copy ElasticBeanstalkUserCLI Policy JSON</strong></summary>
@@ -108,17 +109,19 @@ This guide provides step-by-step instructions for deploying the Flask Modular Te
       ]
    }
    ```
-
    </details>
 
-   d. Attach the "ElasticBeanstalkUserCLI" policy to the "ElasticBeanstalkUser_forCLI" user:
-      - Go back to the user's details page
-      - Under "Permissions", click "Add permissions"
-      - Choose "Attach existing policies directly"
-      - Search for and select the "ElasticBeanstalkUserCLI" policy
-      - Click "Next: Review" and then "Add permissions"
+   c. Create a new IAM user named "ElasticBeanstalkUser_forCLI":
+      - Go to "Users" page and click "Create user"
+      - Set the user name to "ElasticBeanstalkUser_forCLI"
+      - Click 'Next'
+      - Select "Attach policies directly"
+      - Set 'Filter by Type' to 'Customer managed'
+      - Select the "ElasticBeanstalkUserCLI" policy
+      - Click 'Next'
+      - Click 'Create user'
 
-   e. Retrieve the AWS access keys:
+   d. Retrieve the AWS access keys:
       - On the user's details page, go to the "Security credentials" tab
       - Under "Access keys", click "Create access key"
       - Download or copy the "AWS Access Key ID" and "Secret Access Key"
