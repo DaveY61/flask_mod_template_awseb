@@ -42,61 +42,70 @@ This guide provides step-by-step instructions for deploying the Flask Modular Te
 
    ```json
    {
-       "Version": "2012-10-17",
-       "Statement": [
-           {
+      "Version": "2012-10-17",
+      "Statement": [
+         {
                "Effect": "Allow",
                "Action": [
-                   "elasticbeanstalk:*",
-                   "ec2:DescribeInstances",
-                   "ec2:DescribeInstanceStatus",
-                   "ec2:DescribeSecurityGroups",
-                   "ec2:DescribeSubnets",
-                   "ec2:DescribeVpcs",
-                   "ec2:DescribeImages",
-                   "ec2:DescribeKeyPairs",
-                   "ec2:DescribeNetworkInterfaces",
-                   "ec2:DescribeTags",
-                   "ec2:DescribeVolumes",
-                   "s3:ListBucket",
-                   "s3:GetObject",
-                   "s3:PutObject",
-                   "s3:DeleteObject",
-                   "cloudwatch:PutMetricData",
-                   "cloudwatch:GetMetricStatistics",
-                   "cloudwatch:DescribeAlarms",
-                   "cloudformation:DescribeStacks",
-                   "cloudformation:DescribeStackResources",
-                   "cloudformation:DescribeStackEvents",
-                   "cloudformation:ListStackResources",
-                   "cloudformation:CreateStack",
-                   "cloudformation:UpdateStack",
-                   "cloudformation:DeleteStack",
-                   "autoscaling:DescribeAutoScalingGroups",
-                   "autoscaling:DescribeAutoScalingInstances",
-                   "autoscaling:DescribeLaunchConfigurations",
-                   "autoscaling:DescribePolicies",
-                   "autoscaling:DescribeScalingActivities",
-                   "autoscaling:DescribeScheduledActions",
-                   "autoscaling:CreateAutoScalingGroup",
-                   "autoscaling:UpdateAutoScalingGroup",
-                   "autoscaling:DeleteAutoScalingGroup",
-                   "iam:PassRole",
-                   "iam:ListRoles",
-                   "iam:GetRole",
-                   "iam:CreateRole",
-                   "iam:DeleteRole",
-                   "iam:AttachRolePolicy",
-                   "iam:DetachRolePolicy",
-                   "iam:PutRolePolicy",
-                   "iam:DeleteRolePolicy",
-                   "sns:Publish",
-                   "sqs:GetQueueAttributes",
-                   "sqs:GetQueueUrl"
+                  "elasticbeanstalk:*",
+                  "ec2:DescribeInstances",
+                  "ec2:DescribeInstanceStatus",
+                  "ec2:DescribeSecurityGroups",
+                  "ec2:DescribeSubnets",
+                  "ec2:DescribeVpcs",
+                  "ec2:DescribeImages",
+                  "ec2:DescribeKeyPairs",
+                  "ec2:DescribeNetworkInterfaces",
+                  "ec2:DescribeTags",
+                  "ec2:DescribeVolumes",
+                  "s3:ListBucket",
+                  "s3:GetObject",
+                  "s3:PutObject",
+                  "s3:DeleteObject",
+                  "cloudwatch:PutMetricData",
+                  "cloudwatch:GetMetricStatistics",
+                  "cloudwatch:DescribeAlarms",
+                  "cloudformation:DescribeStacks",
+                  "cloudformation:DescribeStackResources",
+                  "cloudformation:DescribeStackEvents",
+                  "cloudformation:ListStackResources",
+                  "cloudformation:CreateStack",
+                  "cloudformation:UpdateStack",
+                  "cloudformation:DeleteStack",
+                  "autoscaling:DescribeAutoScalingGroups",
+                  "autoscaling:DescribeAutoScalingInstances",
+                  "autoscaling:DescribeLaunchConfigurations",
+                  "autoscaling:DescribePolicies",
+                  "autoscaling:DescribeScalingActivities",
+                  "autoscaling:DescribeScheduledActions",
+                  "autoscaling:CreateAutoScalingGroup",
+                  "autoscaling:UpdateAutoScalingGroup",
+                  "autoscaling:DeleteAutoScalingGroup",
+                  "iam:ListRoles",
+                  "iam:GetRole",
+                  "iam:CreateRole",
+                  "iam:DeleteRole",
+                  "iam:AttachRolePolicy",
+                  "iam:DetachRolePolicy",
+                  "iam:PutRolePolicy",
+                  "iam:DeleteRolePolicy",
+                  "sns:Publish",
+                  "sqs:GetQueueAttributes",
+                  "sqs:GetQueueUrl"
                ],
                "Resource": "*"
-           }
-       ]
+         },
+         {
+               "Effect": "Allow",
+               "Action": "iam:PassRole",
+               "Resource": "*",
+               "Condition": {
+                  "StringEquals": {
+                     "iam:PassedToService": "elasticbeanstalk.amazonaws.com"
+                  }
+               }
+         }
+      ]
    }
    ```
 
@@ -137,63 +146,50 @@ By following these steps, you'll have set up the necessary IAM user with the app
 
    ```json
    {
-       "Version": "2012-10-17",
-       "Statement": [
-           {
-               "Sid": "BucketAccess",
-               "Action": [
-                   "s3:Get*",
-                   "s3:List*",
-                   "s3:PutObject"
-               ],
-               "Effect": "Allow",
-               "Resource": [
-                   "arn:aws:s3:::elasticbeanstalk-*",
-                   "arn:aws:s3:::elasticbeanstalk-*/*"
-               ]
-           },
-           {
-               "Sid": "XRayAccess",
-               "Action": [
-                   "xray:PutTraceSegments",
-                   "xray:PutTelemetryRecords",
-                   "xray:GetSamplingRules",
-                   "xray:GetSamplingTargets",
-                   "xray:GetSamplingStatisticSummaries"
-               ],
-               "Effect": "Allow",
-               "Resource": "*"
-           },
-           {
-               "Sid": "CloudWatchLogsAccess",
-               "Action": [
-                   "logs:PutLogEvents",
-                   "logs:CreateLogStream",
-                   "logs:DescribeLogStreams",
-                   "logs:DescribeLogGroups"
-               ],
-               "Effect": "Allow",
-               "Resource": [
-                   "arn:aws:logs:*:*:log-group:/aws/elasticbeanstalk*"
-               ]
-           },
-           {
-               "Sid": "ECSAccess",
+      "Version": "2012-10-17",
+      "Statement": [
+         {
                "Effect": "Allow",
                "Action": [
-                   "ecs:Poll",
-                   "ecs:StartTask",
-                   "ecs:StopTask",
-                   "ecs:DiscoverPollEndpoint",
-                   "ecs:StartTelemetrySession",
-                   "ecs:RegisterContainerInstance",
-                   "ecs:DeregisterContainerInstance",
-                   "ecs:DescribeContainerInstances",
-                   "ecs:Submit*"
+                  "ec2:DescribeInstances",
+                  "ec2:DescribeInstanceStatus",
+                  "ec2:GetConsoleOutput",
+                  "ec2:AssociateAddress",
+                  "ec2:DescribeAddresses",
+                  "ec2:DescribeSecurityGroups",
+                  "s3:ListBucket",
+                  "s3:GetObject",
+                  "s3:PutObject",
+                  "cloudwatch:PutMetricData",
+                  "cloudwatch:GetMetricStatistics",
+                  "cloudwatch:DescribeAlarms",
+                  "sns:Publish",
+                  "sqs:GetQueueAttributes",
+                  "sqs:GetQueueUrl",
+                  "logs:CreateLogGroup",
+                  "logs:CreateLogStream",
+                  "logs:PutLogEvents",
+                  "elasticloadbalancing:DescribeInstanceHealth",
+                  "elasticloadbalancing:DescribeLoadBalancers",
+                  "elasticloadbalancing:DescribeTargetHealth",
+                  "autoscaling:DescribeAutoScalingGroups",
+                  "autoscaling:DescribeAutoScalingInstances",
+                  "autoscaling:DescribeScalingActivities",
+                  "autoscaling:DescribeNotificationConfigurations"
                ],
                "Resource": "*"
-           }
-       ]
+         },
+         {
+               "Effect": "Allow",
+               "Action": "iam:PassRole",
+               "Resource": "*",
+               "Condition": {
+                  "StringEquals": {
+                     "iam:PassedToService": "elasticbeanstalk.amazonaws.com"
+                  }
+               }
+         }
+      ]
    }
    ```
 
@@ -208,35 +204,69 @@ By following these steps, you'll have set up the necessary IAM user with the app
 
    ```json
    {
-       "Version": "2012-10-17",
-       "Statement": [
-           {
-               "Sid": "AllowPassRole",
-               "Effect": "Allow",
-               "Action": "iam:PassRole",
-               "Resource": "arn:aws:iam::*:role/aws-elasticbeanstalk-*"
-           },
-           {
-               "Sid": "AllowElasticBeanstalkOperations",
+      "Version": "2012-10-17",
+      "Statement": [
+         {
                "Effect": "Allow",
                "Action": [
-                   "elasticbeanstalk:*",
-                   "ec2:*",
-                   "ecs:*",
-                   "ecr:*",
-                   "elasticloadbalancing:*",
-                   "autoscaling:*",
-                   "cloudwatch:*",
-                   "s3:*",
-                   "sns:*",
-                   "cloudformation:*",
-                   "rds:*",
-                   "sqs:*",
-                   "logs:*"
+                  "elasticloadbalancing:DescribeInstanceHealth",
+                  "elasticloadbalancing:DescribeLoadBalancers",
+                  "elasticloadbalancing:DescribeTargetHealth",
+                  "ec2:DescribeInstances",
+                  "ec2:DescribeInstanceStatus",
+                  "ec2:GetConsoleOutput",
+                  "ec2:AssociateAddress",
+                  "ec2:DescribeAddresses",
+                  "ec2:DescribeSecurityGroups",
+                  "autoscaling:CreateAutoScalingGroup",
+                  "autoscaling:UpdateAutoScalingGroup",
+                  "autoscaling:DescribeAutoScalingGroups",
+                  "autoscaling:DeleteAutoScalingGroup",
+                  "autoscaling:DescribeScalingActivities",
+                  "autoscaling:DescribeScalingProcessTypes",
+                  "autoscaling:DescribeScheduledActions",
+                  "autoscaling:DescribePolicies",
+                  "autoscaling:DescribeNotificationConfigurations",
+                  "autoscaling:DescribeTags",
+                  "s3:ListBucket",
+                  "s3:GetObject",
+                  "s3:PutObject",
+                  "cloudwatch:PutMetricData",
+                  "cloudwatch:GetMetricStatistics",
+                  "cloudwatch:DescribeAlarms",
+                  "sns:Publish",
+                  "sqs:GetQueueAttributes",
+                  "sqs:GetQueueUrl",
+                  "elasticbeanstalk:DescribeEnvironmentManagedActions",
+                  "elasticbeanstalk:DescribeEnvironmentManagedActionHistory",
+                  "elasticbeanstalk:ApplyEnvironmentManagedAction",
+                  "ec2:CreateTags",
+                  "ec2:DeleteTags",
+                  "elasticbeanstalk:DescribeInstancesHealth",
+                  "elasticbeanstalk:DescribeEnvironmentResources",
+                  "elasticbeanstalk:ListAvailableSolutionStacks",
+                  "elasticbeanstalk:DescribeEvents",
+                  "elasticbeanstalk:DescribeApplications",
+                  "elasticbeanstalk:DescribeEnvironments",
+                  "elasticbeanstalk:DescribeApplicationVersions",
+                  "elasticbeanstalk:DescribeConfigurationOptions",
+                  "elasticbeanstalk:DescribeConfigurationSettings",
+                  "elasticbeanstalk:ListPlatformVersions",
+                  "elasticbeanstalk:DescribePlatformVersion"
                ],
                "Resource": "*"
-           }
-       ]
+         },
+         {
+               "Effect": "Allow",
+               "Action": "iam:PassRole",
+               "Resource": "*",
+               "Condition": {
+                  "StringEquals": {
+                     "iam:PassedToService": "elasticbeanstalk.amazonaws.com"
+                  }
+               }
+         }
+      ]
    }
    ```
 
