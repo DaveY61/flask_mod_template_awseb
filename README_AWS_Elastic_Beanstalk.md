@@ -291,12 +291,22 @@ By following these steps, you'll have set up the necessary IAM user with the app
    a. Create an EC2 Role named "aws-elasticbeanstalk-ec2-role":
       - Go to "Roles" and click "Create role"
       - Choose AWS service and EC2 as the use case
-      - Attach the "ElasticBeanstalkEC2RolePolicy" you created earlier
+      - Click 'Next'
+      - Set 'Filter by Type' to 'Customer managed'
+      - Select the "ElasticBeanstalkEC2RolePolicy" policy
+      - Click 'Next'
+      - Fill in role name: "aws-elasticbeanstalk-ec2-role"
+      - Click 'Create role'
 
    b. Create a Service Role named "aws-elasticbeanstalk-service-role":
       - Go to "Roles" and click "Create role"
       - Choose AWS service and Elastic Beanstalk as the use case
-      - Attach the "ElasticBeanstalkServiceRolePolicy" you created earlier
+      - Click 'Next'
+      - Set 'Filter by Type' to 'Customer managed'
+      - Select the "ElasticBeanstalkServiceRolePolicy" policy
+      - Click 'Next'
+      - Fill in role name: "aws-elasticbeanstalk-service-role"
+      - Click 'Create role'
 
 4. In the AWS Management Console, go to the Elastic Beanstalk service.
 
