@@ -228,25 +228,21 @@ By following these steps, you'll have set up the necessary IAM user with the app
 
 4. In the AWS Management Console, go to the Elastic Beanstalk service.
 
-5. Click "Create environment".
+5. Click "Create application".
 
-6. Fill in the application details:
-   - Application name: `flask-mod-template`
-   - Environment name: `Flask-mod-template-env` (automatically filled)
+6. Step 1: Configure environment:
+   - Keep the selected 'Web server environment' 
+   - Fill in the Application name: `flask-mod-template`
+   - Keep the auto-filled Environment name: `Flask-mod-template-env` (automatically filled)
+   - For Platform, choose "Python" and select the appropriate Python version.
+   - For Application code, keep the "Sample application" (for now)
+   - Click 'Next'
 
-7. For Platform, choose "Python" and select the appropriate Python version.
-
-8. For Application code, choose "Sample application" for now.
-
-9. Click 'Next'.
-
-10. On the 'Configure service access' form:
+10. Step 2: Configure service access:
     - Ensure "Use an existing service role" is selected
     - Select the "aws-elasticbeanstalk-service-role" you created earlier
-    - For EC2 key pair, select the user you created earlier
     - For EC2 instance profile, select the "aws-elasticbeanstalk-ec2-role" you created earlier
-
-11. Click 'Next'.
+    - Click 'Next'
 
 12. On the next page, click 'Skip to review'.
 
