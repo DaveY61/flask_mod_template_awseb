@@ -112,7 +112,7 @@ This guide provides step-by-step instructions for deploying the Flask Modular Te
       - Fill in 'Policy name' as "ElasticBeanstalkCLI_Policy"
       - Click 'Create policy'
 
-   c. Create a new IAM user named "ElasticBeanstalCLI_User":
+   c. Create a new IAM user named "ElasticBeanstalkCLI_User":
       - Go to "Users" page and click "Create user"
       - Set the user name to "ElasticBeanstalkCLI_User"
       - Click 'Next'
@@ -123,7 +123,7 @@ This guide provides step-by-step instructions for deploying the Flask Modular Te
       - Click 'Create user'
 
    d. Retrieve the AWS access keys:
-      - Go to the "Users" page and click to open the "ElasticBeanstalCLI_User" user page
+      - Go to the "Users" page and click to open the "ElasticBeanstalkCLI_User" user page
       - At the top in the "Summary" section, click "Create access key"
       - For Use case, select "Command Line Interface (CLI)"
       - Check the confirmation checkbox (bottom of form)
@@ -201,7 +201,7 @@ By following these steps, you'll have set up the necessary IAM user with the app
    </details>
 
    - Click 'Next'
-   - Fill in 'Policy name' as "ElasticBeanstalkEC2RolePolicy"
+   - Fill in 'Policy name' as "ElasticBeanstalkEC2_Policy"
    - Click 'Create policy'
 
 3. Create two roles:
@@ -211,7 +211,7 @@ By following these steps, you'll have set up the necessary IAM user with the app
       - Choose AWS service and EC2 as the use case
       - Click 'Next'
       - Set 'Filter by Type' to 'Customer managed'
-      - Select the "ElasticBeanstalkEC2RolePolicy" policy
+      - Select the "ElasticBeanstalkEC2_Policy" policy
       - Click 'Next'
       - Fill in role name: "aws-elasticbeanstalk-ec2-role"
       - Click 'Create role'
@@ -219,9 +219,9 @@ By following these steps, you'll have set up the necessary IAM user with the app
    b. Create a Service Role named "aws-elasticbeanstalk-service-role":
       - Go to "Roles" and click "Create role"
       - Choose AWS service and Elastic Beanstalk as the use case
+      - Keep the default choice of "Elastic Beanstalk - Customizable"
       - Click 'Next'
-      - Set 'Filter by Type' to 'Customer managed'
-      - Select the "ElasticBeanstalkServiceRolePolicy" policy
+      - Keep the selected default permissions
       - Click 'Next'
       - Fill in role name: "aws-elasticbeanstalk-service-role"
       - Click 'Create role'
