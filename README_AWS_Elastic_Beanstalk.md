@@ -143,14 +143,12 @@ By following these steps, you'll have set up the necessary IAM user with the app
 
 1. In the AWS Management Console, go to the IAM service.
 
-2. Create two policies:
-
-   a. Create an EC2 policy named "ElasticBeanstalkEC2RolePolicy":
-      - Go to "Policies" and click "Create policy"
-      - Switch to the JSON tab and paste the following policy:
+2. Create an EC2 policy named "ElasticBeanstalkEC2_Policy":
+   - Go to "Policies" and click "Create policy"
+   - Switch to the JSON tab and paste the following policy:
 
    <details>
-   <summary><strong>📋 Click to view/copy ElasticBeanstalkEC2RolePolicy JSON</strong></summary>
+   <summary><strong>📋 Click to view/copy JSON Policy</strong></summary>
 
    ```json
    {
@@ -202,89 +200,9 @@ By following these steps, you'll have set up the necessary IAM user with the app
    ```
    </details>
 
-      - Click 'Next'
-      - Fill in 'Policy name' as "ElasticBeanstalkEC2RolePolicy"
-      - Click 'Create policy'
-
-   b. Create a Service policy named "ElasticBeanstalkServiceRolePolicy":
-      - Go to "Policies" and click "Create policy"
-      - Switch to the JSON tab and paste the following policy:
-
-   <details>
-   <summary><strong>📋 Click to view/copy ElasticBeanstalkServiceRolePolicy JSON</strong></summary>
-
-   ```json
-   {
-      "Version": "2012-10-17",
-      "Statement": [
-         {
-               "Effect": "Allow",
-               "Action": [
-                  "elasticloadbalancing:DescribeInstanceHealth",
-                  "elasticloadbalancing:DescribeLoadBalancers",
-                  "elasticloadbalancing:DescribeTargetHealth",
-                  "ec2:DescribeInstances",
-                  "ec2:DescribeInstanceStatus",
-                  "ec2:GetConsoleOutput",
-                  "ec2:AssociateAddress",
-                  "ec2:DescribeAddresses",
-                  "ec2:DescribeSecurityGroups",
-                  "autoscaling:CreateAutoScalingGroup",
-                  "autoscaling:UpdateAutoScalingGroup",
-                  "autoscaling:DescribeAutoScalingGroups",
-                  "autoscaling:DeleteAutoScalingGroup",
-                  "autoscaling:DescribeScalingActivities",
-                  "autoscaling:DescribeScalingProcessTypes",
-                  "autoscaling:DescribeScheduledActions",
-                  "autoscaling:DescribePolicies",
-                  "autoscaling:DescribeNotificationConfigurations",
-                  "autoscaling:DescribeTags",
-                  "s3:ListBucket",
-                  "s3:GetObject",
-                  "s3:PutObject",
-                  "cloudwatch:PutMetricData",
-                  "cloudwatch:GetMetricStatistics",
-                  "cloudwatch:DescribeAlarms",
-                  "sns:Publish",
-                  "sqs:GetQueueAttributes",
-                  "sqs:GetQueueUrl",
-                  "elasticbeanstalk:DescribeEnvironmentManagedActions",
-                  "elasticbeanstalk:DescribeEnvironmentManagedActionHistory",
-                  "elasticbeanstalk:ApplyEnvironmentManagedAction",
-                  "ec2:CreateTags",
-                  "ec2:DeleteTags",
-                  "elasticbeanstalk:DescribeInstancesHealth",
-                  "elasticbeanstalk:DescribeEnvironmentResources",
-                  "elasticbeanstalk:ListAvailableSolutionStacks",
-                  "elasticbeanstalk:DescribeEvents",
-                  "elasticbeanstalk:DescribeApplications",
-                  "elasticbeanstalk:DescribeEnvironments",
-                  "elasticbeanstalk:DescribeApplicationVersions",
-                  "elasticbeanstalk:DescribeConfigurationOptions",
-                  "elasticbeanstalk:DescribeConfigurationSettings",
-                  "elasticbeanstalk:ListPlatformVersions",
-                  "elasticbeanstalk:DescribePlatformVersion"
-               ],
-               "Resource": "*"
-         },
-         {
-               "Effect": "Allow",
-               "Action": "iam:PassRole",
-               "Resource": "*",
-               "Condition": {
-                  "StringEquals": {
-                     "iam:PassedToService": "elasticbeanstalk.amazonaws.com"
-                  }
-               }
-         }
-      ]
-   }
-   ```
-   </details>
-
-      - Click 'Next'
-      - Fill in 'Policy name' as "ElasticBeanstalkServiceRolePolicy"
-      - Click 'Create policy'
+   - Click 'Next'
+   - Fill in 'Policy name' as "ElasticBeanstalkEC2RolePolicy"
+   - Click 'Create policy'
 
 3. Create two roles:
 
