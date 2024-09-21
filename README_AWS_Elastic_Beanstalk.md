@@ -31,12 +31,12 @@ This guide provides step-by-step instructions for deploying the Flask Modular Te
 
    a. Log in to the AWS Management Console and navigate to the IAM service.
 
-   b. Create a new policy named "ElasticBeanstalkUserCLI":
+   b. Create a new policy named "ElasticBeanstalkCLI_Policy":
       - Go to "Policies" and click "Create policy"
       - Switch to the JSON tab and paste the following policy:
 
    <details>
-   <summary><strong>📋 Click to view/copy ElasticBeanstalkUserCLI Policy JSON</strong></summary>
+   <summary><strong>📋 Click to view/copy the JSON Policy</strong></summary>
 
    ```json
    {
@@ -109,21 +109,21 @@ This guide provides step-by-step instructions for deploying the Flask Modular Te
    </details>
 
       - Click 'Next'
-      - Fill in 'Policy name' as "ElasticBeanstalkUserCLI"
+      - Fill in 'Policy name' as "ElasticBeanstalkCLI_Policy"
       - Click 'Create policy'
 
-   c. Create a new IAM user named "ElasticBeanstalkUser_forCLI":
+   c. Create a new IAM user named "ElasticBeanstalCLI_User":
       - Go to "Users" page and click "Create user"
-      - Set the user name to "ElasticBeanstalkUser_forCLI"
+      - Set the user name to "ElasticBeanstalkCLI_User"
       - Click 'Next'
       - Select "Attach policies directly"
       - Set 'Filter by Type' to 'Customer managed'
-      - Select the "ElasticBeanstalkUserCLI" policy
+      - Select the "ElasticBeanstalkCLI_Policy" policy
       - Click 'Next'
       - Click 'Create user'
 
    d. Retrieve the AWS access keys:
-      - Go to the "Users" page and click to open the "ElasticBeanstalkUser_forCLI" user page
+      - Go to the "Users" page and click to open the "ElasticBeanstalCLI_User" user page
       - At the top in the "Summary" section, click "Create access key"
       - For Use case, select "Command Line Interface (CLI)"
       - Check the confirmation checkbox (bottom of form)
