@@ -46,60 +46,69 @@ This guide provides step-by-step instructions for deploying the Flask Modular Te
                "Effect": "Allow",
                "Action": [
                   "elasticbeanstalk:*",
-                  "ec2:DescribeInstances",
-                  "ec2:DescribeInstanceStatus",
-                  "ec2:DescribeSecurityGroups",
-                  "ec2:DescribeSubnets",
-                  "ec2:DescribeVpcs",
-                  "ec2:DescribeImages",
-                  "ec2:DescribeKeyPairs",
-                  "ec2:DescribeNetworkInterfaces",
-                  "ec2:DescribeTags",
-                  "ec2:DescribeVolumes",
-                  "s3:ListBucket",
-                  "s3:GetObject",
-                  "s3:PutObject",
-                  "s3:DeleteObject",
-                  "cloudwatch:PutMetricData",
-                  "cloudwatch:GetMetricStatistics",
-                  "cloudwatch:DescribeAlarms",
-                  "cloudformation:DescribeStacks",
-                  "cloudformation:DescribeStackResources",
-                  "cloudformation:DescribeStackEvents",
-                  "cloudformation:ListStackResources",
-                  "cloudformation:CreateStack",
-                  "cloudformation:UpdateStack",
-                  "cloudformation:DeleteStack",
-                  "autoscaling:DescribeAutoScalingGroups",
-                  "autoscaling:DescribeAutoScalingInstances",
-                  "autoscaling:DescribeLaunchConfigurations",
-                  "autoscaling:DescribePolicies",
-                  "autoscaling:DescribeScalingActivities",
-                  "autoscaling:DescribeScheduledActions",
-                  "autoscaling:CreateAutoScalingGroup",
-                  "autoscaling:UpdateAutoScalingGroup",
-                  "autoscaling:DeleteAutoScalingGroup",
-                  "iam:ListRoles",
-                  "iam:GetRole",
-                  "iam:CreateRole",
-                  "iam:DeleteRole",
-                  "iam:AttachRolePolicy",
-                  "iam:DetachRolePolicy",
-                  "iam:PutRolePolicy",
-                  "iam:DeleteRolePolicy",
-                  "sns:Publish",
-                  "sqs:GetQueueAttributes",
-                  "sqs:GetQueueUrl"
+                  "ec2:*",
+                  "ecs:*",
+                  "ecr:*",
+                  "elasticloadbalancing:*",
+                  "autoscaling:*",
+                  "cloudwatch:*",
+                  "s3:*",
+                  "sns:*",
+                  "cloudformation:*",
+                  "rds:*",
+                  "sqs:*",
+                  "logs:*"
                ],
                "Resource": "*"
          },
          {
                "Effect": "Allow",
+               "Action": [
+                  "iam:ListRoles",
+                  "iam:ListInstanceProfiles",
+                  "iam:ListInstanceProfilesForRole",
+                  "iam:GetInstanceProfile",
+                  "iam:GetRole",
+                  "iam:CreateRole",
+                  "iam:CreateInstanceProfile",
+                  "iam:DeleteInstanceProfile",
+                  "iam:AddRoleToInstanceProfile",
+                  "iam:RemoveRoleFromInstanceProfile",
+                  "iam:AttachRolePolicy",
+                  "iam:PutRolePolicy",
+                  "iam:DeleteRolePolicy"
+               ],
+               "Resource": [
+                  "arn:aws:iam::*:role/aws-elasticbeanstalk-*",
+                  "arn:aws:iam::*:role/service-role/aws-elasticbeanstalk-*",
+                  "arn:aws:iam::*:instance-profile/aws-elasticbeanstalk-*"
+               ]
+         },
+         {
+               "Effect": "Allow",
+               "Action": "iam:CreateServiceLinkedRole",
+               "Resource": "arn:aws:iam::*:role/aws-service-role/elasticloadbalancing.amazonaws.com/*",
+               "Condition": {
+                  "StringLike": {
+                     "iam:AWSServiceName": "elasticloadbalancing.amazonaws.com"
+                  }
+               }
+         },
+         {
+               "Effect": "Allow",
                "Action": "iam:PassRole",
-               "Resource": "*",
+               "Resource": [
+                  "arn:aws:iam::*:role/aws-elasticbeanstalk-*",
+                  "arn:aws:iam::*:role/service-role/aws-elasticbeanstalk-*"
+               ],
                "Condition": {
                   "StringEquals": {
-                     "iam:PassedToService": "elasticbeanstalk.amazonaws.com"
+                     "iam:PassedToService": [
+                           "ec2.amazonaws.com",
+                           "elasticbeanstalk.amazonaws.com",
+                           "elasticloadbalancing.amazonaws.com",
+                           "autoscaling.amazonaws.com"
+                     ]
                   }
                }
          }
@@ -278,7 +287,7 @@ These steps will set up the necessary policies and roles, and guide you through 
 
 1. Initialize your EB CLI repository:
    ```
-   eb init -p python-3.8 flask-mod-template
+   eb init -p python-3.11 flask-mod-template
    ```
 
 2. Create an Elastic Beanstalk environment:
