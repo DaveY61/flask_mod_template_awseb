@@ -6,7 +6,7 @@ This guide provides step-by-step instructions for deploying the Flask Modular Te
 1. [Setting up AWS Account](#1-setting-up-aws-account)
 2. [Installing AWS CLI and EB CLI](#2-installing-aws-cli-and-eb-cli)
 3. [Configuring AWS Elastic Beanstalk](#3-configuring-aws-elastic-beanstalk)
-4. [Preparing Your Application](#4-preparing-your-application)
+4. [AWS Elastic Beanstalk Application Files](#4-aws-elastic-beanstalk-application-files)
 5. [Deploying Your Application](#5-deploying-your-application)
 6. [Ensuring Sufficient Storage](#6-ensuring-sufficient-storage)
 7. [Setting Up Automatic Deployment from GitHub](#7-setting-up-automatic-deployment-from-github)
@@ -259,29 +259,80 @@ By following these steps, you'll have set up the necessary IAM user with the app
 
 These steps will set up the necessary policies and roles, and guide you through the process of creating an Elastic Beanstalk environment with the appropriate permissions and configurations.
 
-## 4. Preparing Your Application
+## 4. AWS Elastic Beanstalk Application Files
 
-1. In your local Flask Modular Template project directory, create a file named `.ebextensions/01_flask.config` with the following content:
-   ```yaml
-   option_settings:
-     aws:elasticbeanstalk:container:python:
-       WSGIPath: run:app
-     aws:elasticbeanstalk:application:environment:
-       PYTHONPATH: "/var/app/current:$PYTHONPATH"
-   ```
+To prepare your Flask Modular Template application for deployment on AWS Elastic Beanstalk, you need to ensure the following files are in place:
 
-2. Create a `requirements.txt` file in your project root if it doesn't exist already:
-   ```
-   pip freeze > requirements.txt
-   ```
+1. `requirements.txt` (root directory)
+   - Lists all Python dependencies
+   - Create this file if it doesn't exist:
+     ```
+     pip freeze > requirements.txt
+     ```
 
-3. Ensure your `.gitignore` file includes:
-   ```
-   *.pyc
-   __pycache__/
-   instance/
-   .env
-   ```
+   **NOTE:** Be sure you include "gunicorn==20.1.0" in the requirements.txt which is needed by Elastic Beanstalk.
+
+2. `.ebextensions/01_flask.config` (in .ebextensions folder)
+   - Contains AWS Elastic Beanstalk configuration
+   - Create this file with the following content:
+     ```yaml
+     option_settings:
+       aws:elasticbeanstalk:container:python:
+         WSGIPath: run_aws:application
+       aws:elasticbeanstalk:application:environment:
+         PYTHONPATH: "/var/app/current:$PYTHONPATH"
+     ```
+
+3. `Procfile` (root directory)
+   - Specifies the command to run your application
+   - Content:
+     ```
+     web: gunicorn --bind 0.0.0.0:8000 run_aws:application
+     ```
+
+4. `run_aws.py` (root directory)
+   - Entry point for your application on AWS
+   - Content:
+     ```python
+     from app.app import app as application
+
+     if __name__ == "__main__":
+         application.run()
+     ```
+
+5. `.elasticbeanstalk/config.yml` (in .elasticbeanstalk folder)
+   - Contains EB CLI configuration (optional, but useful for deployment settings)
+   - This file is typically created when you run `eb init`
+
+6. `.ebignore` (root directory, if needed)
+   - Specifies files to ignore during deployment (similar to .gitignore)
+   - Create this file if you need to exclude certain files from deployment
+
+Ensure your project structure looks like this:
+
+```
+your_project/
+├── .ebextensions/
+│   └── 01_flask.config
+├── .elasticbeanstalk/
+│   └── config.yml
+├── app/
+│   └── app.py (and other application files)
+├── .gitignore
+├── .ebignore (if needed)
+├── requirements.txt
+├── Procfile
+└── run_aws.py
+```
+
+All of these files, except for any local-only configuration files, should be committed to your repository and will be used during the Elastic Beanstalk deployment process.
+
+Remember:
+- The `.elasticbeanstalk/config.yml` file is created when you initialize your EB environment with `eb init`. It's useful to commit this file as it stores your EB environment settings.
+- If you have sensitive information (like API keys), use environment variables in Elastic Beanstalk instead of hardcoding them in your files.
+- Make sure your `.gitignore` file is set up to exclude any local-only files or directories (like virtual environments, `.env` files, etc.).
+
+When you run `eb deploy`, Elastic Beanstalk will use these files to set up and run your application in the cloud environment.
 
 ## 5. Deploying Your Application
 
