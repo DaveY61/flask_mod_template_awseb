@@ -1,11 +1,14 @@
 branch-defaults:
-  Update-README-for-AWS:
-    environment: flask-mod-template-env
-    group_suffix: null
+  main:
+    environment: Flask-mod-template-env
+environment-defaults:
+  Flask-mod-template-env:
+    branch: null
+    repository: null
 global:
   application_name: flask-mod-template
   branch: null
-  default_ec2_keyname: null
+  default_ec2_keyname: aws-eb
   default_platform: Python 3.11
   default_region: us-west-1
   include_git_submodules: true
